@@ -1,0 +1,2561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="description" content="Check a message, call transcript or support contact before you act on it. Runs entirely in your browser.">
+<title>Sidq: is this really support?</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231a1b26'/%3E%3Cpath d='M16 5l9 3.5v7c0 5.5-3.8 9.6-9 11.5-5.2-1.9-9-6-9-11.5v-7z' fill='none' stroke='%237aa2f7' stroke-width='2'/%3E%3Cpath d='M12 16l3 3 5-6' fill='none' stroke='%239ece6a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#1a1b26; --panel:#1f2335; --raised:#24283b; --line:#3b4261;
+  --text:#c0caf5; --muted:#9aa5ce; --accent:#7aa2f7; --accent-ink:#16161e;
+  --red:#f7768e; --yellow:#e0af68; --green:#9ece6a; --cyan:#7dcfff; --purple:#bb9af7;
+  --red-bg:rgba(247,118,142,.20); --yellow-bg:rgba(224,175,104,.18); --blue-bg:rgba(122,162,247,.16); --green-bg:rgba(158,206,106,.16);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#e1e2e7; --panel:#e9e9ed; --raised:#f2f2f5; --line:#a8aecb;
+  --text:#343b58; --muted:#565f89; --accent:#2e5cc7; --accent-ink:#ffffff;
+  --red:#c4264f; --yellow:#8c5a14; --green:#3d6a1a; --cyan:#006a8e; --purple:#7a3fcf;
+  --red-bg:rgba(196,38,79,.14); --yellow-bg:rgba(140,90,20,.14); --blue-bg:rgba(46,92,199,.12); --green-bg:rgba(61,106,26,.13);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Noto Sans Arabic",sans-serif;font-variant-numeric:tabular-nums}
+body.large{font-size:19px}
+.wrap{max-width:1040px;margin:0 auto;padding:24px 18px 56px}
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{margin:0;font-size:1.55em;font-weight:700;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{margin:4px 0 0;color:var(--muted);max-width:56ch}
+.tools{display:flex;gap:6px}
+button{font:inherit;color:inherit;cursor:pointer;background:transparent;border:1px solid var(--line);border-radius:8px;padding:7px 12px;line-height:1.2}
+button:hover{border-color:var(--accent)}
+button:focus-visible,textarea:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:650}
+button.primary:hover{filter:brightness(1.07)}
+button.sm{padding:5px 10px;font-size:.88em}
+.tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--line);margin:22px 0 20px}
+.tab{border:0;border-bottom:2px solid transparent;border-radius:0;padding:10px 14px;color:var(--muted)}
+.tab[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent);font-weight:600}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:22px;align-items:start}
+@media(max-width:860px){.layout{grid-template-columns:1fr}}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+label,.label{display:block;font-size:.8em;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+textarea,input[type=text]{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:11px 12px;font:inherit;font-size:16px}
+textarea{min-height:170px;resize:vertical}
+.field{margin-top:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg button{border-radius:0;margin-left:-1px;padding:6px 11px;font-size:.9em}
+.seg button:first-child{border-radius:8px 0 0 8px;margin-left:0}
+.seg button:last-child{border-radius:0 8px 8px 0}
+.seg button[aria-pressed="true"]{background:var(--raised);border-color:var(--accent);color:var(--accent);position:relative;z-index:1;font-weight:600}
+.hint{color:var(--muted);font-size:.88em}
+.examples{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.examples .row{margin-top:6px}
+.empty{color:var(--muted);padding:26px 4px;text-align:left}
+.empty b{color:var(--text)}
+.band{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.band h2{margin:0;font-size:1.35em;letter-spacing:-.01em}
+.band.scam h2{color:var(--red)} .band.careful h2{color:var(--yellow)} .band.ok h2{color:var(--green)}
+.glyph{width:30px;height:30px;flex:none}
+.meter{height:6px;border-radius:99px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin:12px 0 6px}
+.meter i{display:block;height:100%;transition:width .45s ease}
+@media(prefers-reduced-motion:reduce){.meter i{transition:none}}
+.meta{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:.88em}
+.meta b{color:var(--text);font-weight:600}
+.sec{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.sec h3{margin:0 0 8px;font-size:.8em;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.msg{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 12px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:230px;overflow:auto}
+mark{background:none;color:inherit;padding:0 2px;border-radius:3px;text-decoration-thickness:2px;text-underline-offset:3px}
+mark.high{background:var(--red-bg);text-decoration:underline wavy var(--red)}
+mark.med{background:var(--yellow-bg);text-decoration:underline solid var(--yellow)}
+mark.low{background:var(--blue-bg);text-decoration:underline dotted var(--accent)}
+mark.good{background:var(--green-bg);text-decoration:underline dashed var(--green)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:.85em;color:var(--muted)}
+ul.why{list-style:none;margin:0;padding:0}
+ul.why li{display:grid;grid-template-columns:82px 1fr;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+ul.why li:first-child{border-top:0;padding-top:0}
+.tagline{font-size:.7em;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 0;text-align:center;border-radius:5px;align-self:start;margin-top:3px;white-space:nowrap}
+.t-high{color:var(--red);background:var(--red-bg)} .t-med{color:var(--yellow);background:var(--yellow-bg)} .t-low{color:var(--accent);background:var(--blue-bg)} .t-good{color:var(--green);background:var(--green-bg)}
+ul.why b{display:block;font-weight:600}
+ul.why span.d{color:var(--muted);font-size:.93em}
+ol.steps{margin:0;padding-left:20px}
+ol.steps li{margin:5px 0}
+.report{margin-top:12px}
+.verify-box{max-width:640px}
+.vres{margin-top:18px}
+table{width:100%;border-collapse:collapse;font-size:.95em}
+th,td{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
+th{width:34%;color:var(--muted);font-weight:500}
+.prose{max-width:74ch}
+.prose h2{font-size:1.05em;margin:26px 0 8px}
+.prose h2:first-child{margin-top:0}
+.prose ul{padding-left:20px}
+.prose li{margin:5px 0}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0}
+@media(max-width:860px){.flow{grid-template-columns:1fr 1fr}}
+.flow div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.92em}
+.flow b{display:block;color:var(--accent);margin-bottom:2px}
+code{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:0 5px;font-size:.92em}
+.hidden{display:none !important}
+footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:.86em;display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 16px}
+.kpi{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.kpi b{display:block;font-size:1.4em;letter-spacing:-.01em}
+.kpi span{font-size:.8em;color:var(--muted)}
+.banner{border:1px solid var(--line);border-left:3px solid var(--yellow);background:var(--bg);border-radius:8px;padding:10px 12px;font-size:.92em;margin:0 0 16px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.two>*,.layout>*,.formgrid>*{min-width:0}
+.kpis,.pane{max-width:100%}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.stack>*+*{margin-top:18px}
+select,input[type=number]{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:15px;max-width:100%}
+input[type=number]{width:100%}
+.tbl{width:100%;border-collapse:collapse;font-size:.9em}
+.tbl th{font-size:.74em;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:650;width:auto}
+.tbl td,.tbl th{padding:7px 6px;border-top:1px solid var(--line);vertical-align:top}
+.tbl tr:first-child th,.tbl tr:first-child td{border-top:0}
+.vtag{display:inline-block;padding:1px 8px;border-radius:5px;font-size:.78em;font-weight:700;white-space:nowrap}
+.vt-scam{color:var(--red);background:var(--red-bg)}.vt-careful{color:var(--yellow);background:var(--yellow-bg)}.vt-ok{color:var(--green);background:var(--green-bg)}
+.ok-t{color:var(--green)}.bad-t{color:var(--red)}.dim{color:var(--muted)}
+.camp{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)}
+.camps{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+.camp+.camp{margin-top:0}
+#opsQueue .camp+.camp{margin-top:10px}
+#opsTable td:nth-child(1),#opsTable td:nth-child(2){white-space:nowrap}
+.camp h4{margin:0 0 4px;font-size:1em}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.chips code{font-size:.8em}
+textarea.mono{font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:110px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.arch{width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px}
+.arch rect{fill:var(--raised);stroke:var(--line)}
+.arch text{fill:var(--text);font-size:12.5px}
+.arch .h{font-weight:700;fill:var(--accent)}
+.arch .s{fill:var(--muted);font-size:11.5px}
+.arch path{stroke:var(--muted);fill:none;stroke-width:1.5}
+.arch path.dash{stroke-dasharray:5 4}
+.arch marker path{fill:var(--muted);stroke:none}
+.qa dt{font-weight:650;margin-top:12px}
+.qa dd{margin:3px 0 0;color:var(--muted)}
+.src{font-size:.82em;color:var(--muted)}
+.cost-out b{font-variant-numeric:tabular-nums}
+
+body.hc{--bg:#000;--panel:#000;--raised:#141414;--line:#fff;--text:#fff;--muted:#ececec;--accent:#ffd400;--accent-ink:#000;--red:#ff7a8e;--green:#7dff7d;--yellow:#ffd400;--cyan:#00e5ff;--red-bg:rgba(255,122,142,.28);--yellow-bg:rgba(255,212,0,.24);--blue-bg:rgba(255,212,0,.2);--green-bg:rgba(125,255,125,.22)}
+body.hc button,body.hc .pane,body.hc textarea,body.hc input{border-width:2px}
+body.simple .meta,body.simple .legend,body.simple .report #copyRep,body.simple #guided summary+*{}
+body.simple .sec:has(#hl),body.simple .sec:has(#why),body.simple .meta,body.simple .examples:not(#guided),body.simple .tab[data-tab=ops],body.simple .tab[data-tab=plan],body.simple .tab[data-tab=how],body.simple #copyRep{display:none !important}
+body.simple button{padding:12px 18px}
+body.simple .band h2{font-size:1.7em}
+.wrap{max-width:1320px;display:grid;grid-template-columns:240px minmax(0,1fr);column-gap:28px;align-items:start}
+.wrap>header{grid-column:1/-1;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.wrap>.tabs{grid-column:1;grid-row:2;flex-direction:column;flex-wrap:nowrap;gap:2px;border:1px solid var(--line);border-radius:14px;padding:8px 10px 10px;margin:22px 0 0;background:var(--panel);position:sticky;top:14px}
+.wrap>section,.wrap>footer{grid-column:2}
+.wrap>section{margin-top:22px}
+.tabs .tab{display:flex;align-items:center;gap:10px;text-align:left;border:0;border-radius:9px;padding:9px 11px;font-size:1em;color:var(--muted)}
+.tabs .tab:hover{background:var(--raised);color:var(--text)}
+.tabs .tab[aria-selected="true"]{background:var(--blue-bg);color:var(--text);box-shadow:inset 3px 0 0 var(--accent);font-weight:600}
+.grp{font-size:.72em;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:12px 11px 4px}
+.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+h1::before{content:"";display:inline-block;width:28px;height:28px;margin-right:10px;vertical-align:-6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4l10 4v7c0 6-4.200 10.500-10 12.500C10.200 25.500 6 21 6 15V8z' fill='none' stroke='%237aa2f7' stroke-width='2.400' stroke-linejoin='round'/%3E%3Cpath d='M11.500 15.500l3.200 3.200 6-6.200' fill='none' stroke='%239ece6a' stroke-width='2.400' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center/contain}
+.userbar{display:flex;align-items:center;gap:10px;margin-left:auto}
+.av{width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700}
+.uwho{display:flex;flex-direction:column;line-height:1.2}.uwho small{color:var(--muted)}
+.demobadge{font-size:.72em;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--yellow);color:var(--yellow);border-radius:999px;padding:1px 8px}
+.login{position:fixed;inset:0;background:var(--bg);z-index:50;display:grid;place-items:center;padding:18px;overflow:auto}
+.lcard{width:min(440px,100%);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 22px 20px}
+.lbrand{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.lcard h2{margin:0 0 6px;font-size:1.2em}
+.roles{display:grid;gap:8px;margin-bottom:14px}
+.rc{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:1em;color:var(--text);margin:0}
+.rc input{grid-row:span 2;margin:0}.rc span{color:var(--muted);font-size:.88em}
+.rc:has(input:checked){border-color:var(--accent);background:var(--blue-bg)}
+.drop{display:flex;align-items:center;gap:10px;border:1.5px dashed var(--line);border-radius:12px;padding:14px;color:var(--muted);cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--accent);color:var(--text)}
+#shotPrev{display:flex;gap:12px;align-items:center;margin-top:8px}
+#shotPrev img{max-width:150px;max-height:110px;border-radius:8px;border:1px solid var(--line)}
+@media(max-width:860px){.wrap{display:block}.wrap>.tabs{flex-direction:row;overflow-x:auto;position:static;margin:16px 0 0}.grp{display:none}.tabs .tab{white-space:nowrap}.userbar{margin-left:0}.wrap>section{margin-top:18px}}
+body.simple .grp{display:none}
+input[type=password]{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:11px 12px;font:inherit;font-size:16px}
+.lcard h2:focus{outline:none}
+
+.tab{padding:10px 9px;font-size:.95em}
+.agcode{font:700 2.2em/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;margin:14px 0 4px;color:var(--accent)}
+.stage{list-style:none;margin:0;padding:0;display:flex;gap:6px;flex-wrap:wrap}
+.stage li{border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.9em;color:var(--muted)}
+.stage li.done{color:var(--text);border-color:var(--green)}
+.stage li.now{color:var(--accent-ink);background:var(--accent);border-color:var(--accent);font-weight:700}
+.dfl{font:1em/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+.dfl .k{display:inline-block;min-width:7em;color:var(--muted);font-family:inherit}
+mark.dn{background:var(--red-bg);color:var(--red);text-decoration:underline;border-radius:3px}
+mark.dg{background:var(--ye-bg,rgba(224,175,104,.25));color:var(--yellow);text-decoration:line-through;border-radius:3px}
+.prrev b.ok{color:var(--green)} .prrev b.no{color:var(--red)}
+body.simple ol.steps li{margin:10px 0}
+</style>
+</head>
+<body>
+<noscript><p style="padding:20px">Sidq needs JavaScript. Everything runs in your browser and nothing is sent anywhere.</p></noscript>
+<div id="login" class="login hidden" role="dialog" aria-modal="true" aria-labelledby="loginT">
+ <div class="lcard" id="loginForm" role="group" aria-labelledby="loginT">
+  <div class="lbrand"><h1>Sidq <em lang="ar" dir="rtl">صدق</em></h1><span class="demobadge">Demo</span></div>
+  <h2 id="loginT" tabindex="-1">Sign in</h2>
+  <p class="hint" style="margin:0 0 12px">Demo sign-in. No account is created, and nothing you type here is checked, sent or stored. Choose who you want to be.</p>
+  <div class="roles" role="radiogroup" aria-label="Sign in as">
+   <label class="rc"><input type="radio" name="lrole" value="customer" checked><b>Customer</b><span>Check messages, calls and agents</span></label>
+   <label class="rc"><input type="radio" name="lrole" value="agent"><b>Support agent</b><span>Pick up a reported case</span></label>
+   <label class="rc"><input type="radio" name="lrole" value="analyst"><b>Fraud analyst</b><span>Campaigns and metrics</span></label>
+  </div>
+  <label for="lUser">Email</label><input type="text" id="lUser" value="amal@demo.sidq" autocomplete="off" spellcheck="false">
+  <label for="lPass" style="margin-top:10px;display:block">Password</label><input type="password" id="lPass" value="demo-password" autocomplete="off">
+  <div class="row" style="margin-top:16px"><button class="primary" id="loginGo" type="button">Sign in</button><button type="button" class="sm" id="loginSkip">Skip and explore</button></div>
+ </div>
+</div>
+<div class="wrap" id="appWrap">
+<header>
+  <div>
+    <h1>Sidq <em lang="ar" dir="rtl">صدق</em></h1>
+    <p class="lede">Got a message or call from “support”? Check it here before you act on it.</p>
+  </div>
+  <div class="userbar" id="userbar"><span class="demobadge">Demo</span><span class="av" id="uAv" aria-hidden="true">?</span><span class="uwho"><b id="uName">Not signed in</b><small id="uRole"></small></span><button class="sm" id="signOut">Sign out</button></div>
+  <div class="tools">
+    <button class="sm" id="themeBtn" aria-pressed="false">Light mode</button>
+    <button class="sm" id="sizeBtn" aria-pressed="false">Larger text</button>
+    <button class="sm" id="hcBtn" aria-pressed="false">High contrast</button>
+    <button class="sm" id="simpleBtn" aria-pressed="false">Simple view</button>
+
+  </div>
+</header>
+
+<div class="tabs" role="tablist" aria-orientation="vertical" aria-label="Sections">
+  <div class="grp" role="presentation">For customers</div>
+  <button class="tab" role="tab" id="tab-check" aria-controls="check" aria-selected="true" data-tab="check"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.7-8 9-4.8-1.3-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Check a message</span></button>
+  <button class="tab" role="tab" id="tab-live" aria-controls="live" aria-selected="false" tabindex="-1" data-tab="live"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg><span>Live call</span></button>
+  <button class="tab" role="tab" id="tab-verify" aria-controls="verify" aria-selected="false" tabindex="-1" data-tab="verify"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 11l2 2 4-4"/></svg><span>Verify a contact</span></button>
+  <button class="tab" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" tabindex="-1" data-tab="practice"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l9-4 9 4-9 4z"/><path d="M7 10.5V15c0 1.5 2.2 3 5 3s5-1.500 5-3v-4.500"/><path d="M21 8v6"/></svg><span>Learn</span></button>
+  <div class="grp" role="presentation">For support agents</div>
+  <button class="tab" role="tab" id="tab-case" aria-controls="case" aria-selected="false" tabindex="-1" data-tab="case"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Case file</span></button>
+  <div class="grp" role="presentation">For the operator</div>
+  <button class="tab" role="tab" id="tab-ops" aria-controls="ops" aria-selected="false" tabindex="-1" data-tab="ops"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Operator view</span></button>
+  <button class="tab" role="tab" id="tab-plan" aria-controls="plan" aria-selected="false" tabindex="-1" data-tab="plan"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg><span>Production plan</span></button>
+  <div class="grp" role="presentation">About</div>
+  <button class="tab" role="tab" id="tab-how" aria-controls="how" aria-selected="false" tabindex="-1" data-tab="how"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>How it works</span></button>
+</div>
+
+<section id="check" role="tabpanel" aria-labelledby="tab-check">
+ <div class="layout">
+  <div class="pane">
+    <label for="msg">Message or call transcript</label>
+    <textarea id="msg" dir="auto" maxlength="6000" placeholder="Paste it here. English or Arabic." spellcheck="false" autocomplete="off"></textarea>
+    <div class="hint" style="margin-top:4px">Ctrl or ⌘ + Enter to check. Links in pasted text are never clickable.</div>
+    <div class="row" id="micRow" style="margin-top:6px"><button class="sm" id="micBtn" aria-pressed="false">Speak it</button><button class="sm micLang" aria-label="Speech language">English</button><span class="hint" id="micNote" role="status"></span></div>
+    <div class="hint" id="micWarn" style="margin-top:2px">“Speak it” uses your browser’s own speech service. In Chrome the audio goes to Google to become text. Sidq does not send or keep it. Leave it alone if you would rather not.</div>
+
+    <div class="field" id="shotBox">
+      <span class="label" id="shotLabel">Got a screenshot instead?</span>
+      <div class="drop" id="shotDrop" tabindex="0" role="button" aria-labelledby="shotLabel" aria-describedby="shotNote"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg><span>Click, drop or paste a screenshot</span></div>
+      <input type="file" id="shotFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+      <div id="shotPrev" class="hidden"><img id="shotImg" alt="The screenshot you added"><div><b id="shotName"></b><div class="row" style="margin-top:6px"><button class="sm" id="shotDel">Remove</button></div></div></div>
+      <p class="hint" id="shotNote" style="margin:6px 0 0" role="status">This demo cannot read the words inside a picture. That needs a text-recognition service on the operator’s side, which is on the roadmap. Type or paste what it says in the box above. The screenshot stays on this page and is attached to your report.</p>
+    </div>
+
+    <div class="field">
+      <label for="sender">Who sent it? <span style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label>
+      <input type="text" id="sender" dir="auto" placeholder="Number, support handle or website" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="field">
+      <span class="label" id="chLabel">It arrived by</span>
+      <div class="seg row" id="channels" role="group" aria-labelledby="chLabel">
+        <button aria-pressed="true">SMS</button><button aria-pressed="false">WhatsApp</button><button aria-pressed="false">Call</button><button aria-pressed="false">Email</button><button aria-pressed="false">Social</button>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:18px">
+      <button class="primary" id="go">Check</button>
+      <button id="clear">Clear</button>
+    </div>
+
+    <div class="examples">
+      <span class="label">Examples (made up)</span>
+      <div class="row" id="samples"></div>
+    </div>
+    <details class="examples" id="guided">
+      <summary style="cursor:pointer;font-weight:600">Cannot paste it? Answer 4 questions instead</summary>
+      <div id="gq" style="margin-top:10px"></div>
+      <div id="gres" class="hint" role="status" style="margin-top:8px"></div>
+    </details>
+  </div>
+
+  <div class="pane" id="out" aria-live="polite">
+    <div class="empty" id="empty"><b>Nothing checked yet.</b><br>Paste a message, or pick an example on the left. The result, the reasons and what to do next will show up here.</div>
+    <div id="result" class="hidden">
+      <div class="band" id="band">
+        <svg class="glyph" id="glyph" viewBox="0 0 32 32" aria-hidden="true"></svg>
+        <h2 id="vtitle" tabindex="-1"></h2>
+      </div>
+      <p id="vline" style="margin:6px 0 0"></p>
+      <div class="meter" aria-hidden="true"><i id="vbar"></i></div>
+      <div class="meta"><span>Warning signs: <b id="mRule"></b></span><span>Wording: <b id="mModel"></b></span><span>Via: <b id="mChan"></b></span></div>
+
+      <div class="sec"><h3>What we found</h3>
+        <div class="msg" id="hl" dir="auto"></div>
+        <div class="legend"><span><mark class="high">high risk</mark></span><span><mark class="med">warning</mark></span><span><mark class="low">worth noting</mark></span><span><mark class="good">reassuring</mark></span></div>
+      </div>
+      <div class="sec"><h3>Why</h3><ul class="why" id="why"></ul></div>
+      <div class="sec"><h3>What to do</h3><ol class="steps" id="steps"></ol>
+        <div class="sec hidden" id="linkSec"><h3>Links in this message</h3><ul class="why" id="linkInsp" style="margin:0;padding:0;list-style:none"></ul></div>
+        <div class="row report"><button class="sm" id="copyRep">Copy a report for the operator</button><button class="sm" id="caseBtn">Report it and open a case</button><button class="sm" id="readBtn" aria-pressed="false">Read it aloud</button><button class="sm" id="trustBtn">Send to someone I trust</button><span class="hint" id="copied" role="status"></span></div>
+        <p class="hint" style="margin:12px 0 0">This is guidance, not a guarantee. If you are unsure, use the number in the operator’s official app or on your bill.</p>
+      </div>
+    </div>
+  </div>
+ </div>
+</section>
+
+<section id="live" class="hidden" role="tabpanel" aria-labelledby="tab-live">
+ <div class="layout">
+  <div class="pane">
+    <label for="callLine">What the caller just said</label>
+    <input type="text" id="callLine" dir="auto" placeholder="Type or paste a line, then press Enter" autocomplete="off" spellcheck="false">
+    <div class="row" id="micRowL" style="margin-top:10px"><button class="sm" id="micBtnL" aria-pressed="false">Listen to the call</button><button class="sm micLang" aria-label="Speech language">English</button><span class="hint" id="micNoteL" role="status"></span></div>
+    <div class="row" style="margin-top:12px"><button class="primary" id="callAdd">Add line</button><button id="callPlay">Play an example call</button><button id="callReset">Reset</button></div>
+    <div class="field"><span class="label">Call so far</span><div class="msg" id="callLog" dir="auto" style="min-height:200px;max-height:none"><span class="dim">Nothing yet.</span></div></div>
+    <p class="hint" style="margin:10px 0 0">The risk is re-scored after every line, so the warning comes <b>during</b> the call, at the moment it turns dangerous. For customers with hearing loss, the alert is visual (and a vibration on a phone), so it does not depend on sound. Live captions from the phone can be pasted in.</p>
+  </div>
+  <div class="pane" aria-live="polite">
+    <div class="band" id="callBand"><svg class="glyph" id="callGlyph" viewBox="0 0 32 32" aria-hidden="true"></svg><h2 id="callTitle" tabindex="-1">Waiting for the call</h2></div>
+    <p id="callLineMsg" style="margin:6px 0 0" class="dim">Add what the caller says, or play the example.</p>
+    <div class="meter" aria-hidden="true"><i id="callBar"></i></div>
+    <div class="meta"><span>Warning signs: <b id="callScore">0 of 100</b></span><span>Lines heard: <b id="callN">0</b></span></div>
+    <div class="banner hidden" id="callAlert" style="margin-top:14px;border-left-color:var(--red)"></div>
+    <div class="sec"><h3>How the risk built up</h3><ol class="steps" id="callTrail"><li class="dim">No lines yet.</li></ol></div>
+  </div>
+ </div>
+</section>
+
+<section id="verify" class="hidden" role="tabpanel" aria-labelledby="tab-verify">
+  <div class="pane verify-box">
+    <label for="contact">Support account, website or phone number</label>
+    <input type="text" id="contact" dir="auto" placeholder="For example @operatorx_support" autocomplete="off" spellcheck="false">
+    <div class="row" style="margin-top:14px"><button class="primary" id="vgo">Verify</button></div>
+    <div class="examples"><span class="label">Examples</span><div class="row" id="csamples"></div></div>
+    <div class="vres hidden" id="vres" role="status"></div>
+  </div>
+  <div class="pane verify-box" style="margin-top:18px">
+    <span class="label">Official contacts (demo list for the fictional operator OperatorX)</span>
+    <table><tbody id="official"></tbody></table>
+    <p class="hint" style="margin:10px 0 0">In a real rollout the operator supplies and updates this list, and shows customers which accounts are verified.</p>
+  </div>
+  <div class="sec" id="agentSec" style="margin-top:22px">
+   <h3>Is the person on the phone really from the operator?</h3>
+   <p class="hint" style="margin:0 0 10px">Anyone can say they are support, so the check runs the other way round. The agent’s console shows a six-digit code tied to your case that changes every 30 seconds. The agent reads it to you. You type it here. The customer is never asked for a code.</p>
+   <div class="two">
+    <div class="pane">
+      <span class="label">Agent console (operator side)</span>
+      <label for="agCase">Case reference</label>
+      <input type="text" id="agCase" placeholder="For example SS-4F2KQ" autocomplete="off" spellcheck="false" maxlength="16">
+      <div class="row" style="margin-top:10px"><button class="primary" id="agGen">Show the agent code</button></div>
+      <div id="agCode" class="agcode" role="status" aria-live="polite">––– –––</div>
+      <div class="hint" id="agTimer"></div>
+    </div>
+    <div class="pane">
+      <span class="label">Customer side (your phone)</span>
+      <label for="cuCase">Case reference you were given</label>
+      <input type="text" id="cuCase" placeholder="For example SS-4F2KQ" autocomplete="off" spellcheck="false" maxlength="16">
+      <label for="cuCode" style="margin-top:10px;display:block">Code the agent read out</label>
+      <input type="text" id="cuCode" inputmode="numeric" placeholder="6 digits" autocomplete="off" maxlength="7">
+      <div class="row" style="margin-top:10px"><button class="primary" id="cuCheck">Check the agent</button></div>
+      <div class="band hidden" id="cuBand" style="margin-top:12px"><svg class="glyph" id="cuGlyph" viewBox="0 0 32 32" aria-hidden="true"></svg><h2 id="cuTitle" tabindex="-1"></h2></div>
+      <p id="cuMsg" role="status" style="margin:6px 0 0"></p>
+    </div>
+   </div>
+   <p class="hint" style="margin:10px 0 0">Demo only: the secret behind the code is visible in this page’s source. In production it lives in the operator’s backend and the code is checked there, with a limit on wrong tries (three here).</p>
+  </div>
+</section>
+
+<section id="case" class="hidden stack" role="tabpanel" aria-labelledby="tab-case">
+  <div class="banner"><b>Tell it once.</b> When a customer reports a scam, the details become one case that follows them across the app, WhatsApp, the call centre and the store. Nothing is stored outside this page.</div>
+  <div class="row"><button class="primary" id="caseDemo">Load an example case</button><span class="hint" id="caseHint">Or check a message and press “Report it and open a case”.</span></div>
+  <div class="two" id="caseBody" hidden>
+    <div class="pane">
+      <span class="label">Customer view</span>
+      <h2 style="margin:4px 0 2px;font-size:1.2em">Your case <span id="cRef"></span></h2>
+      <p class="hint" style="margin:0">Keep this reference. Quote it on any channel and nobody will ask you to start again.</p>
+      <div class="sec"><h3>What we already know</h3><ul id="cKnown" style="margin:0;padding-left:18px"></ul></div>
+      <div class="sec"><h3>Four quick questions that decide how fast we act</h3><div id="cQs"></div></div>
+    </div>
+    <div class="pane">
+      <span class="label">Agent desk (what the next agent sees)</span>
+      <div class="seg row" id="cChan" role="group" aria-label="Channel the customer contacts us on" style="margin:6px 0 10px"><button aria-pressed="true">App</button><button aria-pressed="false">WhatsApp</button><button aria-pressed="false">Call centre</button><button aria-pressed="false">Store</button></div>
+      <div class="sec"><h3>Where the case stands</h3><ol class="stage" id="cStage"></ol><div class="row" style="margin-top:8px"><button class="sm" id="cNext">Move to the next stage</button><span class="hint">The next agent opens this first, on any channel, so the customer does not tell the story again.</span></div></div>
+      <div class="msg" id="cSummary" style="max-height:none;white-space:pre-wrap"></div>
+      <div class="row" style="margin-top:10px"><button class="sm" id="cCopy">Copy handoff</button><span class="hint" id="cCopied" role="status"></span></div>
+      <div class="sec"><h3>Timeline</h3><ol class="steps" id="cTime"></ol></div>
+    </div>
+  </div>
+</section>
+
+<section id="ops" class="hidden stack" role="tabpanel" aria-labelledby="tab-ops">
+  <div class="banner"><b>Mock data only.</b> Everything on this tab is made up and generated in your browser. It shows what the operator’s fraud team would see once customers start reporting. Nothing is stored or sent anywhere.</div>
+
+  <div class="kpis" aria-live="off">
+    <div class="kpi"><b id="kProc">0</b><span>reports processed</span></div>
+    <div class="kpi"><b id="kFlag">0%</b><span>flagged (careful or scam)</span></div>
+    <div class="kpi"><b id="kCamp">0</b><span>campaigns detected</span></div>
+    <div class="kpi"><b id="kLat">0 ms</b><span>median check time (p95 <span id="kLat95">0</span>)</span></div>
+    <div class="kpi"><b id="kPrec">n/a</b><span>precision on labelled mock data</span></div>
+    <div class="kpi"><b id="kRec">n/a</b><span>recall on labelled mock data</span></div>
+    <div class="kpi"><b id="kFpr">n/a</b><span>false alarms on genuine notices</span></div>
+  </div>
+  <p class="hint" id="kConf" style="margin-top:-8px"></p>
+
+  <div class="pane">
+    <div class="row">
+      <button class="primary" id="opsLoad">Load 60 mock reports</button>
+      <button id="opsLive" aria-pressed="false">Start live feed</button>
+      <button id="opsReset">Reset</button>
+      <span class="hint">The live feed adds one new mock report every 1.5 seconds.</span>
+    </div>
+    <p class="hint" style="margin:10px 0 0">The mock set includes tricky cases on purpose: a genuine promotion that looks like bait, and a polite scam with no obvious keywords. Those show up as false alarms or misses, because a console that only shows 100% would not be believable. These are synthetic messages written by the same team that built the checker, so real-world accuracy would be lower and needs a held-out test (see the Production plan).</p>
+  </div>
+
+  <div class="stack">
+    <div class="pane">
+      <span class="label">Latest reports</span>
+      <div style="overflow-x:auto"><table class="tbl" id="opsTable"><thead><tr><th>Time</th><th>Via</th><th>Sender</th><th>Result</th><th>Main reason</th><th>Check</th></tr></thead><tbody></tbody></table></div>
+      <p class="hint" id="opsEmpty" style="margin:8px 0 0">No reports yet. Load the mock set or start the live feed.</p>
+    </div>
+    <div class="pane">
+      <span class="label">Campaigns (grouped by shared link, sender or wording)</span>
+      <div id="opsCamps" class="camps"></div>
+      <p class="hint" id="campEmpty" style="margin:8px 0 0">Campaigns appear when several flagged reports share a link, sender or wording.</p>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="pane">
+      <span class="label">Review queue (simulated)</span>
+      <div id="opsQueue"></div>
+      <p class="hint" id="queueEmpty" style="margin:8px 0 0">Nothing queued. From a campaign, queue a link or sender for review. Nothing is blocked without a second person approving it.</p>
+    </div>
+    <div class="pane">
+      <span class="label">Customer advisory (draft for approval)</span>
+      <textarea id="opsAdv" class="mono" placeholder="Choose “Draft advisory” on a campaign." readonly></textarea>
+    </div>
+  </div>
+
+  <div class="pane">
+    <span class="label">Add your own mock report</span>
+    <div class="formgrid">
+      <div><label for="opsText">Message</label><textarea id="opsText" dir="auto" maxlength="6000" style="min-height:90px" placeholder="Paste or type a message"></textarea></div>
+      <div class="stack" style="margin-top:0">
+        <div><label for="opsSender">Sender</label><input type="text" id="opsSender" dir="auto" placeholder="Number, handle or website"></div>
+        <div class="formgrid"><div><label for="opsChan">Arrived by</label><select id="opsChan"><option>SMS</option><option>WhatsApp</option><option>Call</option><option>Email</option><option>Social</option></select></div>
+        <div><label for="opsTruth">What it really is</label><select id="opsTruth"><option value="unknown">Unknown</option><option value="scam">Scam</option><option value="genuine">Genuine</option></select></div></div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="primary" id="opsAdd">Add to console</button><button id="opsExport">Export as JSON</button><button id="opsImport">Import JSON</button><button id="opsCopy">Copy</button><span class="hint" id="opsMsg" role="status"></span></div>
+    <textarea id="opsIO" class="mono" style="margin-top:10px" placeholder='Export fills this box. To import, paste a JSON array like [{"text":"…","sender":"…","channel":"SMS","truth":"scam"}] and choose Import JSON.'></textarea>
+  </div>
+
+  <div class="two">
+   <div class="pane">
+    <span class="label">Seal genuine messages</span>
+    <p class="hint" style="margin:0 0 10px">Catching fakes is a race the scammer can always re-enter. Sealing flips it: the operator stamps its real messages, so customers can prove a message is real. A fake cannot carry a valid seal.</p>
+    <label for="sealIn">Message to send</label>
+    <textarea id="sealIn" dir="auto" style="min-height:80px">Your plan renews on 3 December. No action is needed. You can manage it anytime in the OperatorX app (operatorx.example). We will never ask for your password or OTP.</textarea>
+    <div class="row" style="margin-top:10px"><button class="primary" id="sealGo">Seal it</button><button id="sealCheck">Check the sealed message</button><button id="sealTamper">Edit it, then check</button></div>
+    <label for="sealOut" style="margin-top:12px">Sealed message</label>
+    <textarea id="sealOut" dir="auto" readonly style="min-height:80px"></textarea>
+    <p class="hint" style="margin:8px 0 0">Demo only: this page uses a shared secret, which is visible here, so it is not secure. Production uses a public-key signature or a server check, with a message ID and expiry so an old message cannot be replayed.</p>
+   </div>
+   <div class="pane">
+    <span class="label">Red team: attack the checker</span>
+    <p class="hint" style="margin:0 0 10px">Scammers adapt, so the checker attacks itself: it rewrites known scams with common evasion tricks and reports how many still get caught, before and after hardening.</p>
+    <div class="row"><button class="primary" id="rtRun">Run the red-team test</button><span class="hint" id="rtNote"></span></div>
+    <div id="rtOut" style="margin-top:12px"></div>
+   </div>
+  </div>
+</section>
+
+<section id="plan" class="hidden prose" role="tabpanel" aria-labelledby="tab-plan">
+  <div class="banner"><b>How to read this page.</b> It treats Sidq as a product an operator would run, not a hackathon demo. Figures in the cost model are placeholders to replace with the operator’s real numbers. Regulatory notes are a summary for design purposes, not legal advice.</div>
+
+  <h2>Who it is for, and why telecom first</h2>
+  <ul>
+    <li><b>Primary customer: a mobile operator.</b> The operator sits on the channel (SMS and calls), is the brand being impersonated, and is now expected by the regulator to detect, block and report SMS fraud. Banks are a natural second phase: the operator can share confirmed scam links and numbers with them, but a bank product would need a different data model and regulator.</li>
+    <li><b>Four users.</b> Customers (app, web, forward-to-check), older customers (Arabic, larger text, simple wording), contact-centre agents (check what a customer forwards in seconds) and fraud analysts (campaigns, review queue, takedowns).</li>
+    <li><b>What the operator gets.</b> Fewer customers defrauded, fewer “is this real?” calls, a brand that is harder to impersonate, and structured reports on new scams that feed its SMS filtering and its reporting to the regulator.</li>
+  </ul>
+
+  <h2>Architecture</h2>
+  <svg class="arch" viewBox="0 0 910 360" role="img" aria-label="Architecture: channels to API gateway to check service, then queue, report store, operator console and actions, with a feedback loop.">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z"/></marker></defs>
+    <rect x="20" y="20" width="200" height="48" rx="8"/><text class="h" x="32" y="42">Customer app / web</text><text class="s" x="32" y="58">check a message</text>
+    <rect x="20" y="84" width="200" height="48" rx="8"/><text class="h" x="32" y="106">WhatsApp / SMS forward</text><text class="s" x="32" y="122">send it to a check number</text>
+    <rect x="20" y="148" width="200" height="48" rx="8"/><text class="h" x="32" y="170">Contact-centre agent</text><text class="s" x="32" y="186">check what a caller forwards</text>
+    <rect x="260" y="64" width="170" height="78" rx="8"/><text class="h" x="272" y="88">API gateway</text><text class="s" x="272" y="106">auth, rate limits</text><text class="s" x="272" y="122">size caps, abuse checks</text>
+    <rect x="470" y="36" width="210" height="142" rx="8"/><text class="h" x="482" y="60">Check service (stateless)</text><text x="482" y="82">1  clean and normalise text</text><text x="482" y="100">2  warning-sign rules</text><text x="482" y="118">3  trained classifier</text><text x="482" y="136">4  LLM tier (optional, async)</text><text class="s" x="482" y="160">falls back one step at a time</text>
+    <rect x="720" y="20" width="170" height="56" rx="8"/><text class="h" x="732" y="42">Verdict and reasons</text><text class="s" x="732" y="60">back to the customer</text>
+    <rect x="720" y="96" width="170" height="44" rx="8"/><text class="h" x="732" y="123">Queue (async)</text>
+    <rect x="720" y="160" width="170" height="62" rx="8"/><text class="h" x="732" y="182">Report store</text><text class="s" x="732" y="200">masked text, short retention</text><text class="s" x="732" y="214">hosted in country</text>
+    <rect x="470" y="250" width="210" height="76" rx="8"/><text class="h" x="482" y="274">Operator console</text><text class="s" x="482" y="292">campaigns, review queue</text><text class="s" x="482" y="308">two-person approval</text>
+    <rect x="720" y="250" width="170" height="90" rx="8"/><text class="h" x="732" y="274">Actions</text><text class="s" x="732" y="292">blocklist, SMS filtering</text><text class="s" x="732" y="308">sender-ID registry</text><text class="s" x="732" y="324">advisories, regulator reports</text>
+    <rect x="260" y="250" width="170" height="76" rx="8"/><text class="h" x="272" y="274">Feedback loop</text><text class="s" x="272" y="292">analyst labels, retrain</text><text class="s" x="272" y="308">shadow test, then release</text>
+    <path d="M220 44H240V103H258" marker-end="url(#ar)"/><path d="M220 108H240V103H258" marker-end="url(#ar)"/><path d="M220 172H240V103H258" marker-end="url(#ar)"/>
+    <path d="M430 103H468" marker-end="url(#ar)"/>
+    <path d="M680 70H700V48H718" marker-end="url(#ar)"/><path d="M680 118H718" marker-end="url(#ar)"/>
+    <path d="M805 140V158" marker-end="url(#ar)"/>
+    <path d="M805 222V236H575V248" marker-end="url(#ar)"/>
+    <path d="M680 290H718" marker-end="url(#ar)"/>
+    <path d="M470 290H432" marker-end="url(#ar)"/>
+    <path class="dash" d="M345 250V212H575V180" marker-end="url(#ar)"/>
+  </svg>
+
+  <h2>Scalability and resilience</h2>
+  <table class="tbl"><tbody>
+    <tr><th>Scale</th><td>The check service is stateless, so it scales out behind a load balancer. The rules and classifier are lightweight text processing (the Operator view measures it on your own machine). Reports go through a queue so a spike never slows a customer’s answer. The LLM tier is optional and asynchronous, with a per-month budget cap. These are design targets to prove in a load test before launch.</td></tr>
+    <tr><th>Graceful fallback</th><td>If the LLM tier is down, use rules plus classifier. If the classifier is down, use rules alone. If everything is down, say “We can’t check this right now. Use the official app,” and never “looks safe”.</td></tr>
+    <tr><th>Data and recovery</th><td>Idempotent report ingestion (a retry never double-counts), backups, two availability zones in country, and recovery targets agreed with the operator’s IT team.</td></tr>
+    <tr><th>Security</th><td>All input is treated as hostile: size caps, no clickable links, escaped output, and a hard separation so text pasted by a customer can never instruct the LLM tier. Console access is role-based with an audit log, and takedowns need a second approver.</td></tr>
+    <tr><th>Operations</th><td>Metrics on latency, flag rate and false alarms; drift alerts when new scam wording appears; every model or rule change runs in shadow mode first.</td></tr>
+  </tbody></table>
+
+  <h2>Regulation and compliance (Bahrain)</h2>
+  <table class="tbl"><tbody>
+    <tr><th>Personal Data Protection Law (Law No. 30 of 2018)</th><td>In force since 1 August 2019. It restricts moving personal data out of Bahrain unless the destination is approved, and requires notifying the authority of a breach within 72 hours. <b>Design response:</b> store masked text only (numbers, codes and names blanked), keep reports for a short, fixed period, host in country, ask for consent when a customer submits a report, run a privacy impact assessment before launch, and keep a 72-hour breach runbook. Any LLM provider must be in country or self-hosted.</td></tr>
+    <tr><th>TRA “Guidelines for Reducing Fraudulent SMS” (October 2025)</th><td>Published by the Telecommunications Regulatory Authority with the mobile operators. They expect operators to detect, block and mitigate fraudulent SMS, to educate customers, to provide reporting mechanisms, and to work with a “privacy first” approach under the data protection law. <b>Design response:</b> Sidq maps onto all four: detection, a customer-facing explainer, a reporting button, and a privacy-by-design data model. The report data also supports the operator’s own filtering.</td></tr>
+    <tr><th>SIM registration regulation (2015)</th><td>Context only: the TRA introduced SIM-card registration to reduce fraud and identity theft. Number data can help investigations, but only through the proper channels.</td></tr>
+    <tr><th>Banks and other regulators</th><td>Banks are regulated separately. Sharing confirmed scam indicators with a bank would need a data-sharing agreement and legal review, so it is a phase-two item.</td></tr>
+    <tr><th>Not legal advice</th><td>The operator’s legal and compliance teams must confirm all of the above before launch.</td></tr>
+  </tbody></table>
+  <p class="src">Sources: DLA Piper “Data Protection in Bahrain”; Trowers & Hamlins on the 2022 PDPL resolutions; Daily Tribune and GDN coverage of the TRA SMS fraud guidelines (October 2025); TRA SIM-card registration regulation press release (2016).</p>
+
+  <h2>Cost model (edit the numbers)</h2>
+  <p class="hint">Every default below is a placeholder, not a quoted price or a real fraud figure. Replace them with the operator’s own numbers.</p>
+  <div class="pane">
+    <div class="two">
+      <div class="stack">
+        <div><label for="cUsers">Customers using it per month</label><input type="number" id="cUsers" value="100000" min="0"></div>
+        <div><label for="cChecks">Checks per customer per month</label><input type="number" id="cChecks" value="2" min="0" step="0.5"></div>
+        <div><label for="cLlm">Share of checks sent to the LLM tier (%)</label><input type="number" id="cLlm" value="5" min="0" max="100"></div>
+        <div><label for="cLlmCost">LLM cost per 1,000 LLM checks (USD)</label><input type="number" id="cLlmCost" value="3" min="0" step="0.5"></div>
+        <div><label for="cCompute">Compute and hosting per 1 million basic checks (USD)</label><input type="number" id="cCompute" value="50" min="0"></div>
+        <div><label for="cAnalysts">Fraud analysts (full-time) and monthly cost each (USD)</label><div class="formgrid"><input type="number" id="cAnalysts" value="2" min="0" step="0.5"><input type="number" id="cAnalystCost" value="3500" min="0"></div></div>
+        <div><label for="cEng">Engineers (full-time) and monthly cost each (USD)</label><div class="formgrid"><input type="number" id="cEng" value="2" min="0" step="0.5"><input type="number" id="cEngCost" value="6000" min="0"></div></div>
+        <div><label for="cComp">Compliance, audits and penetration tests per year (USD)</label><input type="number" id="cComp" value="30000" min="0"></div>
+      </div>
+      <div class="stack">
+        <div><label for="cIncidents">Scam incidents reaching customers per month (baseline)</label><input type="number" id="cIncidents" value="2000" min="0"></div>
+        <div><label for="cPrevent">Share of those prevented by Sidq (%)</label><input type="number" id="cPrevent" value="5" min="0" max="100"></div>
+        <div><label for="cLoss">Average loss per incident (USD)</label><input type="number" id="cLoss" value="150" min="0"></div>
+        <div><label for="cDefl">Support calls avoided per month</label><input type="number" id="cDefl" value="3000" min="0"></div>
+        <div><label for="cCall">Cost of one support contact (USD)</label><input type="number" id="cCall" value="2.5" min="0" step="0.5"></div>
+        <div class="kpis cost-out" style="margin-top:6px">
+          <div class="kpi"><b id="oRun">-</b><span>monthly running cost</span></div>
+          <div class="kpi"><b id="oPer">-</b><span>cost per check</span></div>
+          <div class="kpi"><b id="oVal">-</b><span>monthly value at these inputs</span></div>
+          <div class="kpi"><b id="oBreak">-</b><span>incidents to prevent per month to break even</span></div>
+        </div>
+        <p class="hint" id="oNote" style="margin:0"></p>
+      </div>
+    </div>
+  </div>
+  <p>Reading it: with inputs like these, people cost far more than computing, so the business case rests on fraud losses avoided and support calls avoided, not on infrastructure. That is why the plan starts with a small team and a measurable pilot.</p>
+
+  <h2>Risks and how they are handled</h2>
+  <table class="tbl"><thead><tr><th>Risk</th><th>What could go wrong</th><th>Mitigation</th></tr></thead><tbody>
+    <tr><th>False alarms</th><td>A genuine operator promotion is flagged, and customers stop trusting real messages.</td><td>Official-domain and sender-ID allowlists, “be careful” wording instead of “scam”, false-alarm rate on genuine notices tracked as a headline metric.</td></tr>
+    <tr><th>False reassurance</th><td>A new scam is rated clean and the customer relaxes.</td><td>Never say “safe”, only “no red flags found” with a reminder. Rules that ask for codes or remote access override reassuring wording. Regular red-team tests.</td></tr>
+    <tr><th>Scammers adapt</th><td>New wording slips past the model.</td><td>Campaign grouping on infrastructure (links, senders), which is harder to change than wording. Weekly retraining from analyst-confirmed reports, tested in shadow mode first.</td></tr>
+    <tr><th>Privacy breach</th><td>Reports contain personal data.</td><td>Mask before storing, short retention, in-country hosting, role-based access, audit log, 72-hour breach runbook.</td></tr>
+    <tr><th>Wrongly blocking a business</th><td>A genuine company’s link is blocked.</td><td>Two-person approval, an evidence log, and an appeal route. Nothing is blocked automatically.</td></tr>
+    <tr><th>Report abuse</th><td>Someone floods reports to get a competitor blocked.</td><td>Rate limits, reporter reputation, and a minimum number of independent reports before anything reaches review.</td></tr>
+    <tr><th>LLM tier</th><td>Prompt injection, cost spikes, data leaving the country.</td><td>Optional and asynchronous, strict output format, budget cap, in-country or self-hosted, fallback to rules.</td></tr>
+    <tr><th>Low adoption</th><td>Customers never use it.</td><td>Put it where customers already are: the operator app, a forward-to-check number, agents’ tools. Arabic and larger text from day one.</td></tr>
+  </tbody></table>
+
+  <h2>Rollout and how success is measured</h2>
+  <table class="tbl"><thead><tr><th>Phase</th><th>What happens</th><th>Moves on when</th></tr></thead><tbody>
+    <tr><th>0. Shadow</th><td>Run on forwarded and reported messages only. No customer sees a verdict.</td><td>Held-out labelled set meets agreed precision and false-alarm targets.</td></tr>
+    <tr><th>1. Staff pilot</th><td>Employees and contact-centre agents use it.</td><td>Agents confirm the reasons are clear and the false-alarm rate on genuine notices is acceptable.</td></tr>
+    <tr><th>2. Limited customers</th><td>A small share of customers, with feedback in the app.</td><td>No privacy or availability incidents; support calls avoided are measurable.</td></tr>
+    <tr><th>3. General launch</th><td>All customers, plus regulator reporting and bank intelligence sharing as options.</td><td>Ongoing review each quarter.</td></tr>
+  </tbody></table>
+  <ul>
+    <li><b>Headline metrics:</b> time from first report to takedown review, share of flagged messages the customer did not act on, false-alarm rate on genuine operator notices, precision of what reaches analysts, and support calls avoided.</li>
+    <li><b>Honest evaluation:</b> a held-out set of real, labelled reports (never used for tuning), a monthly red-team exercise, and a comparison against the operator’s current filtering.</li>
+  </ul>
+
+  <h2>Questions the panel is likely to ask</h2>
+  <dl class="qa">
+    <dt>Where does the customer’s data go?</dt><dd>Nowhere in this prototype: the page blocks all network access. In production, masked text stays in country with a short retention period and a consent step.</dd>
+    <dt>How do you know it works?</dt><dd>On synthetic data it catches most scams and shows its misses, and that is the point of the labelled mock set. Real accuracy needs a held-out set of real reports in the shadow phase, before any customer sees a verdict.</dd>
+    <dt>What happens when the model is wrong?</dt><dd>Customers see reasons, not just a score, so they can judge. Nothing is blocked without a second person approving it, and false alarms on genuine notices are tracked as a headline metric.</dd>
+    <dt>Why would an operator pay for this?</dt><dd>Fraud losses, support calls, and trust in the brand. The cost model above shows the break-even in incidents prevented per month, to be filled with the operator’s own numbers.</dd>
+    <dt>Does it fit our existing fraud stack?</dt><dd>It adds to it: confirmed links and senders feed the operator’s SMS filtering and sender-ID registry, and the customer reports give the fraud team early warning of new campaigns.</dd>
+    <dt>Why not just use a large language model?</dt><dd>Cost, speed, privacy and explainability. Rules and a small classifier answer in milliseconds and can run in country. An LLM tier is an optional add-on for call transcripts and unusual wording.</dd>
+    <dt>Is it only for telecom?</dt><dd>Telecom first, because the operator owns the channel and is the brand being copied. Banks are a natural second phase through shared scam indicators.</dd>
+  </dl>
+</section>
+
+<section id="practice" class="hidden stack" role="tabpanel" aria-labelledby="tab-practice">
+  <div class="banner"><b>Learn to pause.</b> A 30-second tip you can listen to, then ten made-up messages to judge. The answers are the checker’s real output. Good for families, schools and the store counter.</div>
+  <div class="pane" style="max-width:760px">
+    <span class="label">Today’s tip · 30 seconds</span>
+    <h2 id="tipH" style="margin:6px 0 4px;font-size:1.25em"></h2>
+    <p id="tipP" style="margin:0"></p>
+    <div class="row" style="margin-top:10px"><button class="sm" id="tipHear" aria-pressed="false">Hear the tip</button><button class="sm" id="tipNext">Another tip</button><span class="hint" id="tipN" role="status"></span></div>
+  </div>
+  <div class="pane" style="max-width:760px">
+    <span class="label">Spot the scam</span>
+    <div class="meta"><span>Message <b id="prN">1</b> of <b id="prT">10</b></span><span>Right so far: <b id="prScore">0</b></span></div>
+    <div class="msg" id="prMsg" dir="auto" style="margin:10px 0;max-height:none;min-height:90px"></div>
+    <div class="row" id="prBtns"><button class="primary" id="prScam" style="min-width:150px">A scam</button><button id="prReal" style="min-width:150px">Genuine</button><button class="sm" id="prHear" aria-pressed="false">Hear it</button></div>
+    <div id="prReveal" class="sec hidden" role="status" aria-live="polite"></div>
+    <div class="row" style="margin-top:12px"><button class="sm hidden" id="prNext">Next message</button><button class="sm hidden" id="prAgain">Start again</button></div>
+  </div>
+</section>
+
+<section id="how" class="hidden prose" role="tabpanel" aria-labelledby="tab-how">
+  <h2>The problem</h2>
+  <p>People get calls, messages and social media accounts that pretend to be their telecom operator’s support. The goal is always the same: rush you into sharing a code, installing an app or paying a fee. In the moment it is hard to tell the difference, and older customers are hit hardest.</p>
+
+  <h2>What Sidq does</h2>
+  <div class="flow">
+    <div><b>1. Read</b>Message, transcript, and optionally the sender.</div>
+    <div><b>2. Spot warning signs</b>Urgency, requests for codes or card details, bait, odd links, remote-access apps, secrecy.</div>
+    <div><b>3. Check the wording</b>A small trained classifier compares it with scam and genuine examples.</div>
+    <div><b>4. Explain</b>A rating, the exact phrases behind it, and why each matters.</div>
+    <div><b>5. Act</b>Plain next steps and a ready report for the operator.</div>
+  </div>
+  <ul>
+    <li><b>Reassuring wording never wins.</b> A message that asks for a code or remote access is never rated as clean, even if it copies “we will never ask for your OTP”.</li>
+    <li><b>Look-alike detection.</b> Fake accounts and links such as <code>@operatorx_suport</code>, <code>operatorx-billing.top</code> or a Cyrillic “о” hidden in a Latin word are caught.</li>
+    <li><b>Hidden-character tricks.</b> Invisible and direction-changing characters used to dodge filters are removed and flagged.</li>
+    <li><b>Caller ID can be faked.</b> A sender that matches the official list is noted, but never treated as proof.</li>
+    <li><b>Private by design.</b> The page has no network access at all (it blocks itself with a content security policy), and nothing is stored.</li>
+  </ul>
+
+  <h2>Where AI is used</h2>
+  <ul>
+    <li>A Naive Bayes text classifier, trained in your browser on a small set of scam and genuine messages in English and Arabic. Those examples are synthetic, written for this demo.</li>
+    <li>Explainable rules cover the warning signs, so a customer sees why something was flagged.</li>
+    <li>Next step in production: train on real customer and operator reports, add a language model to read call transcripts, and show a verified-support badge in the operator’s app.</li>
+  </ul>
+
+  <h2>Why it matters to an operator</h2>
+  <ul>
+    <li>Operators are the brand being impersonated, so protecting customers protects trust in the network.</li>
+    <li>The report button gives the fraud team structured data on new scam wording and fake accounts.</li>
+    <li>Plain language, Arabic support and larger text make it usable by older customers.</li>
+  </ul>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>The trained model is small and synthetic, so it can miss new wording. That is why the warning-sign rules carry most of the weight.</li>
+    <li>It checks text. It does not listen to live calls.</li>
+    <li>The official contact list here is a demo.</li>
+  </ul>
+  <h2>New in this version</h2>
+  <ul>
+    <li><b>Seal.</b> The operator stamps genuine messages with a short code computed over the exact text. A fake cannot carry a valid one, and an edited message fails. The demo uses a shared secret that is visible on this page, so it is not secure here; production uses public-key signatures, message IDs and expiry.</li>
+    <li><b>Live call.</b> The transcript is re-scored after every line, so the warning comes during the call. It takes typed or pasted lines. Speech-to-text is not built.</li>
+    <li><b>Case file.</b> A report becomes one case with a reference and a handoff summary, so the customer does not repeat themselves across channels. It lives in this page only.</li>
+    <li><b>Accessibility.</b> Read aloud (the device’s own voices, which may not include Arabic), simple view, high contrast, larger text, a four-question mode for people who cannot paste, and visual alerts for people with hearing loss. Not yet tested with real users or screen-reader users.</li>
+    <li><b>Check the agent.</b> The customer checks the person on the phone, not only the message: the agent’s console shows a six-digit code, tied to the case, that changes every 30 seconds and is read out to the customer. A scammer who does not hold the operator’s secret cannot produce it. The demo secret is visible in this page, so in production the check lives on the operator’s side.</li>
+    <li><b>Link inspector.</b> Every link is compared with the official address and shown as a character-by-character diff, so “operatorx-billing.top” visibly is not “operatorx.example”.</li>
+    <li><b>Case status.</b> Received, under review, number or link flagged, closed. The next agent sees the status on any channel.</li>
+    <li><b>Practise.</b> Six made-up messages to decide on, then the checker’s answer and reasons. Aimed at families and schools.</li>
+    <li><b>Screenshots.</b> A screenshot can be added by clicking, dropping or pasting. It is kept with the report. The demo does not read the words in it; that needs a text-recognition service on the operator’s side.</li>
+    <li><b>Speak it.</b> An optional button turns speech into text using the browser’s own speech service (in Chrome the audio goes to Google). Sidq does not send or keep it. The checker itself sends nothing anywhere.</li>
+    <li><b>Learn.</b> A 30-second tip you can listen to, and ten made-up messages to judge.</li>
+    <li><b>Red team.</b> The checker rewrites scams with evasion tricks and reports how many it still catches, before and after hardening. The fixes were written against the same tricks, so the “after” figures are optimistic.</li>
+  </ul>
+</section>
+
+<footer>
+  <span>This session: <b id="nChecked">0</b> checked, <b id="nFlag">0</b> flagged</span>
+  <span>Built for the Further in Tech AI Challenge 2026. The challenge is general and does not point at any specific operator.</span>
+</footer>
+</div>
+
+<script id="engine">
+const BRAND = "operatorx";
+const OFFICIAL = [
+  { type: "Support handle", value: "@operatorx_support" },
+  { type: "Website", value: "operatorx.example" },
+  { type: "Phone", value: "+973 1700 0000" },
+  { type: "Sender name", value: "OperatorX" }
+];
+const HIDDEN_RE = /[​⁠⁡-⁤﻿‪-‮⁦-⁩]/g;
+const MAX_CHARS = 6e3;
+function clean(raw) {
+  let t = String(raw || "").normalize("NFKC");
+  const hidden = (t.match(HIDDEN_RE) || []).length;
+  t = t.replace(HIDDEN_RE, "").replace(/\r\n?/g, "\n").replace(/[ \t]{3,}/g, "  ").trim();
+  const truncated = t.length > MAX_CHARS;
+  if (truncated) t = t.slice(0, MAX_CHARS);
+  return { text: t, hidden, truncated };
+}
+const asciiDigits = (s) => s.replace(/[٠-٩]/g, (d) => d.charCodeAt(0) - 1632).replace(/[۰-۹]/g, (d) => d.charCodeAt(0) - 1776);
+const MIXED_SCRIPT = /(?=[\p{L}]*\p{Script=Latin})(?=[\p{L}]*[\p{Script=Cyrillic}\p{Script=Greek}])[\p{L}]+/gu;
+const hasMixedScript = (s) => s.split(/\s+/).some((w) => /(?=.*\p{Script=Latin})(?=.*[\p{Script=Cyrillic}\p{Script=Greek}])/u.test(w));
+const SIGNALS = [
+  {
+    id: "credential",
+    label: "Asks for a code, password or card details",
+    weight: 40,
+    sev: "high",
+    neg: true,
+    floor: 55,
+    why: "Real support never asks you to read out or send an OTP, password, PIN or card number.",
+    res: [
+      /\b(?:send|share|give|provide|tell|reply with|confirm|enter|read(?: out)?|forward|type)\b[^.\n]{0,40}\b(?:otp|one[- ]time (?:code|password)|verification code|password|passcode|pin|cvv|card (?:number|details)|security code|id number|cpr)\b/gi,
+      /\b(?:read|give|tell) me\b[^.\n]{0,30}\bcode\b/gi,
+      /\b(?:send|share|give|provide|tell|read(?: out)?|forward|type)\b[^.\n]{0,30}\b(?:[4-8]|four|five|six|eight)[- ]digit\s+(?:code|pin|number)\b/gi,
+      /(?:أرسل|ارسل|شارك|زودنا|اعطنا|أعطنا|أدخل|ادخل)[^.\n]{0,40}(?:رمز|كلمة المرور|الرقم السري|رقم البطاقة|الرمز)/g
+    ]
+  },
+  {
+    id: "remote",
+    label: "Asks you to install an app or give remote access",
+    weight: 35,
+    sev: "high",
+    floor: 55,
+    why: "Remote-access apps let a stranger see and control your phone, including your banking apps.",
+    res: [
+      /\b(?:anydesk|teamviewer|quicksupport|ultraviewer|remote (?:access|support|session|control))\b/gi,
+      /\b(?:install|download)\s+(?:this|the|our|an?)\s+(?:app|application|apk|software|tool)\b/gi,
+      /\.apk\b/gi,
+      /(?:انيدسك|تيم فيور|حمل التطبيق|حمّل التطبيق|تحميل التطبيق|تثبيت التطبيق)/g
+    ]
+  },
+  {
+    id: "payment",
+    label: "Asks you to pay a fee or send money",
+    weight: 28,
+    sev: "high",
+    floor: 50,
+    why: "Genuine operators do not ask for gift cards, crypto or \u201Cfees\u201D by message or call.",
+    res: [
+      /\b(?:gift cards?|itunes card|google play card|crypto(?:currency)?|bitcoin|usdt|western union|processing fee|clearance fee|activation fee|release fee|delivery fee|customs fee|shipping fee)\b/gi,
+      /\b(?:pay|transfer|send)\s+(?:a |the )?(?:small |upfront )?(?:fee|fine|deposit|charge|money|funds|amount)\b/gi,
+      /(?:بطاقة هدايا|بطاقات هدايا|عملة رقمية|حوّل|تحويل مبلغ|ادفع رسوم|رسوم (?:معالجة|تفعيل))/g
+    ]
+  },
+  {
+    id: "bait",
+    label: "Prize, refund or free-gift bait",
+    weight: 20,
+    sev: "high",
+    why: "Unexpected rewards and refunds are the most common hook to get you to click or share details.",
+    res: [
+      /\b(?:you(?:'ve| have)? (?:won|been selected)|congratulations|prize|lucky (?:draw|winner)|free (?:gift|data|gb|bundle|recharge|iphone)|refund|cashback|claim (?:your|now)|compensation|unclaimed|reward)\b/gi,
+      /(?:مبروك|لقد ربحت|ربحت|جائزة|مبلغ مسترد|استرداد|هدية مجانية)/g
+    ]
+  },
+  {
+    id: "secrecy",
+    label: "Tells you to keep it secret or stay on the line",
+    weight: 24,
+    sev: "high",
+    why: "Scammers isolate you so nobody can warn you.",
+    res: [
+      /\b(?:don'?t tell (?:anyone|anybody)|do not (?:tell|inform) (?:anyone|anybody)|keep (?:this|it) (?:secret|confidential|between us)|do not hang up|don'?t hang up|stay on the (?:line|call))\b/gi,
+      /(?:لا تخبر (?:أحد|احد)|لا تغلق الخط|سري للغاية)/g
+    ]
+  },
+  {
+    id: "shortlink",
+    label: "Shortened or unusual link",
+    weight: 18,
+    sev: "high",
+    why: "Fake support links hide the real destination or use cheap, throwaway domains.",
+    res: [
+      /\b(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|shorturl\.\w+|wa\.me)\/?[^\s]*/gi,
+      /\b[a-z0-9-]+\.(?:xyz|top|click|link|info|icu|vip|cc|tk|ml|buzz|live|site|online)\b\/?[^\s]*/gi,
+      /https?:\/\/\d{1,3}(?:\.\d{1,3}){3}[^\s]*/gi,
+      /\b[a-z0-9]+(?:-[a-z0-9]+)+\.(?:com|net|org|co|me|app)\b\/?[^\s]*/gi
+    ]
+  },
+  {
+    id: "urgency",
+    label: "Pressure and urgency",
+    weight: 14,
+    sev: "med",
+    why: "Scammers rush you so you do not stop to think or check.",
+    res: [
+      /\b(?:urgent(?:ly)?|immediately|right now|act now|last (?:warning|chance|notice)|final (?:warning|notice)|limited time)\b/gi,
+      /\bwithin (?:the )?(?:next )?\d+\s*(?:hours?|hrs?|minutes?|mins?)\b/gi,
+      /\b(?:will be|is being|has been) (?:blocked|suspended|closed|terminated|deactivated|disconnected|locked)\b/gi,
+      /\b(?:suspended|deactivated)\b/gi,
+      /(?:عاجل|فورا|فوراً|آخر (?:تحذير|فرصة)|خلال\s+(?:\d+|ساعة|ساعتين)\s*(?:ساعة|ساعات|دقيقة|دقائق)?|سيتم\s+(?:إيقاف|ايقاف|تعليق|إغلاق|اغلاق|قطع)\S*|تعليق|إيقاف الخط)/g
+    ]
+  },
+  {
+    id: "verify",
+    label: "Asks you to \u201Cverify\u201D or \u201Cupdate\u201D your account",
+    weight: 14,
+    sev: "med",
+    why: "\u201CVerify your account\u201D messages usually lead to a fake login page.",
+    res: [
+      /\b(?:verify|confirm|validate|update|re-?activate)\b[^.\n]{0,30}\b(?:account|identity|details|card|payment|billing|information)\b/gi,
+      /(?:تحقق|حدث|حدّث|أكد|اكد)[^.\n]{0,25}(?:حسابك|بياناتك|هويتك|بطاقتك)/g
+    ]
+  },
+  {
+    id: "channel",
+    label: "Tries to move you to a private chat",
+    weight: 10,
+    sev: "med",
+    why: "Moving to WhatsApp or Telegram takes the conversation away from official channels.",
+    res: [/\b(?:whatsapp|telegram|signal)\b[^.\n]{0,40}\b(?:agent|support|officer|number|us|me)\b/gi]
+  },
+  {
+    id: "link",
+    label: "Contains a link",
+    weight: 8,
+    sev: "low",
+    why: "Never log in through a link in a message. Open the official app or type the website yourself.",
+    res: [/\b(?:https?:\/\/|www\.)[^\s<>"']+/gi]
+  },
+  {
+    id: "authority",
+    label: "Claims to be support, billing or a security team",
+    weight: 8,
+    sev: "low",
+    why: "Anyone can say they are support. Check through an official channel.",
+    res: [
+      /\b(?:customer (?:care|service|support)|support (?:team|agent|desk)|billing (?:team|department)|security (?:team|department)|fraud (?:team|department)|verification team|official support|technical support|account manager)\b/gi,
+      /(?:خدمة العملاء|فريق الدعم|الدعم الفني|قسم الفواتير|فريق الأمان|قسم الاحتيال)/g
+    ]
+  },
+  {
+    id: "generic",
+    label: "Generic greeting",
+    weight: 6,
+    sev: "low",
+    why: "Real messages from your operator usually carry details only they would know.",
+    res: [
+      /\bdear (?:customer|user|client|valued customer|subscriber|sir|madam|account holder)\b/gi,
+      /(?:عزيزي العميل|عزيزتي العميلة|عميلنا العزيز)/g
+    ]
+  },
+  {
+    id: "safe_never",
+    label: "Reminds you never to share codes",
+    weight: -25,
+    sev: "good",
+    why: "Genuine messages often warn you not to share your codes. Scammers copy this too, which is why it can never clear a message by itself.",
+    res: [
+      /\b(?:never|will never|do not|don'?t)\s+(?:ask|asks|share|give|send)[^.\n]{0,40}\b(?:password|otp|code|pin|cvv|passcode)\b/gi,
+      /(?:لا\s*تشارك|لن\s*نطلب)[^.\n]{0,40}(?:رمز|كلمة المرور|الرقم السري)/g
+    ]
+  },
+  {
+    id: "safe_official",
+    label: "Points to the official app or gives a reference number",
+    weight: -12,
+    sev: "good",
+    why: "Directing you to the official app, or quoting a ticket number, is typical of genuine notices.",
+    res: [
+      /\b(?:official (?:app|website|channel)|(?:in|via|through) (?:the|our) (?:\w+ )?app|no action (?:is )?(?:needed|required)|ticket (?:#|no\.?|number)\s*\w+|reference (?:#|no\.?|number)\s*\w+)\b/gi,
+      /(?:من خلال التطبيق|التطبيق الرسمي|لا يلزم اتخاذ أي إجراء|رقم التذكرة)/g
+    ]
+  }
+];
+const EXTRA = {
+  lookalikeDomain: { id: "lookalikeDomain", label: "Link imitates the official website", weight: 35, sev: "high", floor: 55, why: "It uses the operator\u2019s name or a near-copy of its address, but it is not the official website." },
+  officialDomain: { id: "officialDomain", label: "Link goes to the official website", weight: -15, sev: "good", why: "The address matches the operator\u2019s official website." },
+  mixedScript: { id: "mixedScript", label: "Letters from another alphabet hidden in a word", weight: 25, sev: "high", floor: 50, why: "Look-alike characters (for example a Cyrillic \u201C\u043E\u201D inside a Latin word) are used to fake brand names." },
+  hidden: { id: "hidden", label: "Contains hidden characters", weight: 12, sev: "med", why: "Invisible or direction-changing characters are used to slip past spam filters. We removed them before checking." },
+  senderFake: { id: "senderFake", label: "Sender is a look-alike of an official contact", weight: 40, sev: "high", floor: 55, why: "The sender copies an official number or account with one or two characters changed." },
+  senderUnknown: { id: "senderUnknown", label: "Sender is not on the official list", weight: 8, sev: "low", why: "The sender is not one of the operator\u2019s official contacts." },
+  senderOfficial: { id: "senderOfficial", label: "Sender matches an official contact", weight: 0, sev: "low", why: "Caller ID and sender names can be faked, so this is not proof. Never share codes or passwords either way." }
+};
+function isNegated(text, idx) {
+  const before = text.slice(Math.max(0, idx - 28), idx);
+  return /(?:never|not|n't|won'?t)\s*(?:\w+\s*){0,2}$/i.test(before) || /(?:لا|لن)\s*\S{0,3}$/.test(before);
+}
+const overlaps = (a, b) => a.start < b.end && b.start < a.end;
+function ruleScan(text, hiddenCount, sender) {
+  let found = [];
+  for (const s of SIGNALS) {
+    const hits = [];
+    for (const re of s.res) {
+      re.lastIndex = 0;
+      let m2;
+      while (m2 = re.exec(text)) {
+        if (m2[0].length === 0) {
+          re.lastIndex++;
+          continue;
+        }
+        if (s.neg && isNegated(text, m2.index)) continue;
+        hits.push({ start: m2.index, end: m2.index + m2[0].length });
+      }
+    }
+    if (hits.length) found.push({ sig: s, hits });
+  }
+  const site = canon(OFFICIAL.find((o) => o.type === "Website").value);
+  const good = [], bad = [];
+  const dre = /\b(?:[a-z0-9-]+\.)+[a-z]{2,}\b/gi;
+  let m;
+  while (m = dre.exec(text)) {
+    const host = m[0].toLowerCase(), span = { start: m.index, end: m.index + m[0].length };
+    if (host === site || host.endsWith("." + site)) good.push(span);
+    else if (host.includes(BRAND) || lev(host, site) <= 2 || skeleton(host) === skeleton(site)) bad.push(span);
+  }
+  if (good.length) {
+    found = found.map((f) => f.sig.id === "link" || f.sig.id === "shortlink" ? { sig: f.sig, hits: f.hits.filter((h) => !good.some((g) => overlaps(h, g))) } : f).filter((f) => f.hits.length);
+    found.push({ sig: EXTRA.officialDomain, hits: good });
+  }
+  if (bad.length) found.push({ sig: EXTRA.lookalikeDomain, hits: bad });
+  const mixed = [];
+  const mre = new RegExp(MIXED_SCRIPT.source, "gu");
+  while (m = mre.exec(text)) mixed.push({ start: m.index, end: m.index + m[0].length });
+  if (mixed.length) found.push({ sig: EXTRA.mixedScript, hits: mixed });
+  if (hiddenCount) found.push({ sig: EXTRA.hidden, hits: [] });
+  if (sender && sender.trim()) {
+    const v = verifyContact(sender);
+    if (v) found.push({ sig: v.level === "scam" ? EXTRA.senderFake : v.level === "ok" ? EXTRA.senderOfficial : EXTRA.senderUnknown, hits: [] });
+  }
+  const ids = new Set(found.map((f) => f.sig.id));
+  let pos = 0, neg = 0;
+  for (const f of found) {
+    const w = f.sig.weight;
+    if (w > 0) pos += w + Math.min(8, (f.hits.length - 1) * 3);
+    else neg += w;
+  }
+  neg = Math.max(-35, neg);
+  const combos = [];
+  const hasLink = ids.has("link") || ids.has("shortlink") || ids.has("lookalikeDomain");
+  if (ids.has("credential") && (ids.has("urgency") || hasLink)) {
+    pos += 15;
+    combos.push("A request for a code, combined with pressure or a link, is the classic scam pattern.");
+  }
+  if (ids.has("remote") && ids.has("authority")) {
+    pos += 10;
+    combos.push("Someone claiming to be support and asking for remote access is a well-known scam.");
+  }
+  if (ids.has("bait") && hasLink) {
+    pos += 10;
+    combos.push("A prize or refund plus a link is how most fake \u201Cclaim\u201D pages work.");
+  }
+  const floor = Math.max(0, ...found.map((f) => f.sig.floor || 0));
+  return { found, score: Math.max(0, Math.min(100, pos + neg)), floor, combos };
+}
+const TRAIN_SCAM = [
+  "URGENT: Your account will be suspended within 24 hours. Verify your details now at http://support-verify.top/login",
+  "Dear customer, we detected unusual activity on your line. Send us the verification code you just received to keep your service active.",
+  "Congratulations! You have won a free 50GB data bundle. Claim your prize now: bit.ly/claim-free",
+  "This is customer support. Your billing is overdue and your number will be disconnected today. Pay the processing fee by gift card to avoid suspension.",
+  "Security team here. Someone tried to access your account. Install AnyDesk so we can fix it remotely. Do not tell anyone.",
+  "You are eligible for a refund of BHD 45. Confirm your card number and PIN to receive it immediately.",
+  "Final warning: your SIM will be deactivated. Click the link to update your identity details www.update-id-now.xyz",
+  "Hello, I am from the support desk. Please message me on WhatsApp to resolve your issue, I need your password and OTP to proceed.",
+  "Your package is held at customs. Pay a small fee today to release it: http://delivery-pay.click/track",
+  "Lucky draw winner! Reply with your full name, ID number and bank details to receive your reward.",
+  "We noticed a failed payment. Update your payment details immediately or your service will be terminated. Link: tinyurl.com/pay-update",
+  "Official support agent: download our app to refund your money. Stay on the line and do not hang up.",
+  "Dear user, your account is locked. Share the one-time password sent to your phone to unlock it now.",
+  "Your number has been selected for a cash prize. Transfer the activation fee to claim your winnings.",
+  "Telecom security alert: suspicious login detected. Verify your account now or it will be blocked http://secure-login-help.info",
+  "I am calling from the billing department. You overpaid and we must refund you. Please read me the code you receive by SMS.",
+  "\u0639\u0632\u064A\u0632\u064A \u0627\u0644\u0639\u0645\u064A\u0644\u060C \u0633\u064A\u062A\u0645 \u0625\u064A\u0642\u0627\u0641 \u062E\u062F\u0645\u062A\u0643 \u062E\u0644\u0627\u0644 \u0633\u0627\u0639\u062A\u064A\u0646. \u0623\u0631\u0633\u0644 \u0631\u0645\u0632 \u0627\u0644\u062A\u062D\u0642\u0642 \u0627\u0644\u0630\u064A \u0648\u0635\u0644\u0643 \u0627\u0644\u0622\u0646",
+  "\u0645\u0628\u0631\u0648\u0643! \u0644\u0642\u062F \u0631\u0628\u062D\u062A \u062C\u0627\u0626\u0632\u0629 \u0645\u062C\u0627\u0646\u064A\u0629. \u0627\u0636\u063A\u0637 \u0639\u0644\u0649 \u0627\u0644\u0631\u0627\u0628\u0637 \u0644\u0627\u0633\u062A\u0644\u0627\u0645\u0647\u0627 \u0641\u0648\u0631\u0627",
+  "\u0641\u0631\u064A\u0642 \u0627\u0644\u062F\u0639\u0645 \u0627\u0644\u0641\u0646\u064A: \u062D\u0633\u0627\u0628\u0643 \u0645\u0639\u0644\u0642. \u062D\u0645\u0644 \u0627\u0644\u062A\u0637\u0628\u064A\u0642 \u0648\u0623\u062F\u062E\u0644 \u0627\u0644\u0631\u0642\u0645 \u0627\u0644\u0633\u0631\u064A \u0644\u062A\u062D\u062F\u064A\u062B \u0628\u064A\u0627\u0646\u0627\u062A\u0643",
+  "\u0639\u0627\u062C\u0644: \u0644\u062F\u064A\u0643 \u0645\u0628\u0644\u063A \u0645\u0633\u062A\u0631\u062F. \u0632\u0648\u062F\u0646\u0627 \u0628\u0631\u0642\u0645 \u0627\u0644\u0628\u0637\u0627\u0642\u0629 \u0648\u0627\u0644\u0631\u0642\u0645 \u0627\u0644\u0633\u0631\u064A \u0644\u0625\u062A\u0645\u0627\u0645 \u0627\u0644\u0639\u0645\u0644\u064A\u0629"
+];
+const TRAIN_OK = [
+  "Your October bill of BHD 12.500 is ready. You can view and pay it in the official app. No action is needed if you use auto-pay.",
+  "Your OTP is 482913. It is valid for 5 minutes. Never share this code with anyone, we will never ask for it.",
+  "Thanks for contacting support. Your ticket number 48213 has been resolved. Rate your experience in the app.",
+  "Your data bundle renews on 25 November. Manage your plan anytime in the app.",
+  "Reminder: your appointment at our store is tomorrow at 10:00. Reply YES to confirm or call the number on our official website.",
+  "Your recharge of BHD 5 was successful. Your new balance is shown in the app.",
+  "We are doing planned maintenance tonight between 2 and 4 AM. Some services may be briefly unavailable.",
+  "Welcome to our network! Your new SIM is now active. Visit the official website or app to explore plans.",
+  "Your complaint reference 77120 has been received. Our team will contact you within 3 working days.",
+  "Good news: your internet speed upgrade is complete. Restart your router if you notice any issues.",
+  "Hi, this is Sara from the store. Your phone is ready for pickup. Please bring your ID when you collect it.",
+  "Your roaming package has been activated for your trip. Enjoy your travels.",
+  "Hi, are we still meeting for lunch tomorrow at 1? Let me know.",
+  "Your delivery will arrive today between 2 and 5 PM. Track it in the app.",
+  "Your payment was received. Thank you! A receipt has been sent to your email on file.",
+  "Security tip: we will never ask for your password or PIN by call, SMS or WhatsApp.",
+  "\u0641\u0627\u062A\u0648\u0631\u062A\u0643 \u0644\u0634\u0647\u0631 \u0623\u0643\u062A\u0648\u0628\u0631 \u062C\u0627\u0647\u0632\u0629. \u064A\u0645\u0643\u0646\u0643 \u0627\u0644\u0627\u0637\u0644\u0627\u0639 \u0639\u0644\u064A\u0647\u0627 \u0648\u0633\u062F\u0627\u062F\u0647\u0627 \u0645\u0646 \u062E\u0644\u0627\u0644 \u0627\u0644\u062A\u0637\u0628\u064A\u0642 \u0627\u0644\u0631\u0633\u0645\u064A. \u0644\u0627 \u064A\u0644\u0632\u0645 \u0627\u062A\u062E\u0627\u0630 \u0623\u064A \u0625\u062C\u0631\u0627\u0621",
+  "\u0631\u0645\u0632 \u0627\u0644\u062A\u062D\u0642\u0642 \u0627\u0644\u062E\u0627\u0635 \u0628\u0643 \u0647\u0648 482913. \u0644\u0627 \u062A\u0634\u0627\u0631\u0643 \u0647\u0630\u0627 \u0627\u0644\u0631\u0645\u0632 \u0645\u0639 \u0623\u064A \u0634\u062E\u0635\u060C \u0644\u0646 \u0646\u0637\u0644\u0628\u0647 \u0645\u0646\u0643 \u0623\u0628\u062F\u0627",
+  "\u0634\u0643\u0631\u0627 \u0644\u062A\u0648\u0627\u0635\u0644\u0643 \u0645\u0639 \u062E\u062F\u0645\u0629 \u0627\u0644\u0639\u0645\u0644\u0627\u0621. \u062A\u0645 \u062D\u0644 \u0637\u0644\u0628\u0643 \u0631\u0642\u0645 \u0627\u0644\u062A\u0630\u0643\u0631\u0629 48213",
+  "\u062A\u0645 \u062A\u062C\u062F\u064A\u062F \u0628\u0627\u0642\u0629 \u0627\u0644\u0625\u0646\u062A\u0631\u0646\u062A \u0628\u0646\u062C\u0627\u062D. \u064A\u0645\u0643\u0646\u0643 \u0625\u062F\u0627\u0631\u0629 \u0628\u0627\u0642\u062A\u0643 \u0641\u064A \u0623\u064A \u0648\u0642\u062A \u0645\u0646 \u0627\u0644\u062A\u0637\u0628\u064A\u0642"
+];
+function normAr(t) {
+  return t.replace(/[ً-ٰٟـ]/g, "").replace(/[أإآ]/g, "\u0627").replace(/ة/g, "\u0647").replace(/ى/g, "\u064A");
+}
+function tokens(t) {
+  t = normAr(t.toLowerCase()).replace(/https?:\/\/\S+|www\.\S+/g, " urltoken ").replace(/\d+/g, " ");
+  const w = t.match(/[\p{L}']+/gu) || [];
+  const out = w.slice();
+  for (let i = 0; i < w.length - 1; i++) out.push(w[i] + "_" + w[i + 1]);
+  return out;
+}
+const NB = (function() {
+  const c1 = new Map(), c0 = new Map(), vocab = new Set();
+  let n1 = 0, n0 = 0;
+  for (const s of TRAIN_SCAM) for (const w of tokens(s)) {
+    c1.set(w, (c1.get(w) || 0) + 1);
+    n1++;
+    vocab.add(w);
+  }
+  for (const s of TRAIN_OK) for (const w of tokens(s)) {
+    c0.set(w, (c0.get(w) || 0) + 1);
+    n0++;
+    vocab.add(w);
+  }
+  return { c1, c0, n1, n0, V: vocab.size };
+})();
+function nbScore(text) {
+  const ws = tokens(text).filter((w) => NB.c1.has(w) || NB.c0.has(w));
+  if (!ws.length) return { p: 0.5, n: 0 };
+  let d = 0;
+  for (const w of ws) d += Math.log(((NB.c1.get(w) || 0) + 1) / (NB.n1 + NB.V)) - Math.log(((NB.c0.get(w) || 0) + 1) / (NB.n0 + NB.V));
+  return { p: 1 / (1 + Math.exp(-(d / ws.length) * 14)), n: ws.length };
+}
+const modelBand = (p, n) => n < 8 ? "too short to tell" : p > 0.65 ? "close to known scams" : p < 0.35 ? "close to normal notices" : "mixed";
+function analyse(raw, sender) {
+  const c = clean(raw);
+  const r = ruleScan(c.text, c.hidden, sender);
+  const { p, n } = nbScore(c.text);
+  let final = Math.round(0.7 * r.score + 0.3 * p * 100);
+  if (r.floor) final = Math.max(final, r.floor);
+  final = Math.max(0, Math.min(100, final));
+  const verdict = final >= 55 ? "scam" : final >= 25 ? "careful" : "ok";
+  return { text: c.text, truncated: c.truncated, final, verdict, rule: Math.round(r.score), model: p, band: modelBand(p, n), found: r.found, combos: r.combos };
+}
+function canon(s) {
+  return s.toLowerCase().trim().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/.*$/, "").replace(/^@/, "").replace(/\s+/g, "");
+}
+function skeleton(s) {
+  return canon(s).replace(/[_\-.+]/g, "").replace(/rn/g, "m").replace(/vv/g, "w").replace(/0/g, "o").replace(/[1|i]/g, "l");
+}
+function lev(a, b) {
+  const m = a.length, n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+function verifyContact(input) {
+  const raw = clean(input).text;
+  if (!raw) return null;
+  if (hasMixedScript(raw)) return { level: "scam", title: "Mixes alphabets in one name", text: "Letters from a different alphabet are hidden in this name to imitate a real one. Treat it as fake." };
+  const digits = asciiDigits(raw).replace(/\D/g, "");
+  if (digits.length >= 7) {
+    const off = OFFICIAL.find((o) => o.type === "Phone").value.replace(/\D/g, "");
+    if (off.endsWith(digits) || digits.endsWith(off)) return { level: "ok", title: "Matches the official number", text: "This number is on the official list. Caller ID can be faked, so never share codes or passwords on a call." };
+    if (lev(digits.slice(-8), off.slice(-8)) <= 2) return { level: "scam", title: "One or two digits away from the official number", text: "Look-alike numbers are used to imitate real support lines. Do not call or reply. Use the number in the official app, website or your bill." };
+    return { level: "sus", title: "Not on the official list", text: "This number is not one of the operator\u2019s official contacts. Check the official website or app before you trust it." };
+  }
+  const c = canon(raw);
+  const targets = OFFICIAL.filter((o) => o.type !== "Phone");
+  for (const o of targets) if (canon(o.value) === c) return { level: "ok", title: "Matches an official contact (" + o.type.toLowerCase() + ")", text: "This matches the official list. Watch out for look-alike accounts, and never share codes or passwords." };
+  const sk = skeleton(raw);
+  for (const o of targets) if (skeleton(o.value) === sk) return { level: "scam", title: "Look-alike of an official contact", text: "This swaps in look-alike characters to imitate \u201C" + o.value + "\u201D. Treat it as fake: do not reply, click or send anything, and report it." };
+  for (const o of targets) if (c.length > 5 && lev(c, canon(o.value)) <= 2) return { level: "scam", title: "Almost matches \u201C" + o.value + "\u201D", text: "A contact that is one or two characters off an official one is a common fake-account trick. Do not trust it, and report it." };
+  if (c.includes(BRAND)) return { level: "scam", title: "Uses the brand name but is not official", text: "Anyone can put a brand name in an account or website. This one is not on the official list." };
+  return { level: "sus", title: "Cannot confirm this contact", text: "It is not on the official list. Check through the operator\u2019s official app or website before you trust it." };
+}
+</script>
+
+<script id="ui">
+const $ = (s) => document.querySelector(s);
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SAMPLES = {
+  "Fake billing alert": "URGENT: Your bill payment failed and your line will be suspended in 2 hours. Update your card details now: http://operatorx-billing.top/pay",
+  "Prize message": "Congratulations! You have been selected to win a free iPhone and 100GB data. Claim your reward today at bit.ly/free-gb-win",
+  "Fake support chat": "Hello, I'm from OperatorX official support. We noticed a security issue on your account. To fix it, please install AnyDesk and read me the code you get by SMS. Please don't tell anyone, it's confidential.",
+  "Arabic OTP scam": "\u0639\u0632\u064A\u0632\u064A \u0627\u0644\u0639\u0645\u064A\u0644\u060C \u0633\u064A\u062A\u0645 \u062A\u0639\u0644\u064A\u0642 \u062E\u062F\u0645\u062A\u0643 \u062E\u0644\u0627\u0644 \u0633\u0627\u0639\u0629. \u0623\u0631\u0633\u0644 \u0631\u0645\u0632 \u0627\u0644\u062A\u062D\u0642\u0642 \u0627\u0644\u0630\u064A \u0648\u0635\u0644\u0643 \u0627\u0644\u0622\u0646 \u0644\u062A\u062C\u0646\u0628 \u0625\u064A\u0642\u0627\u0641 \u0627\u0644\u062E\u0637",
+  "Genuine notice": "Your plan renews on 3 December. No action is needed. You can manage it anytime in the OperatorX app (operatorx.example). We will never ask for your password or OTP."
+};
+const CSAMPLES = ["@operatorx_support", "@operatorx_suport", "0peratorx.example", "+973 1700 0000", "+973 1700 0008", "@fast_help_line"];
+let channel = "SMS", last = null, nChecked = 0, nFlag = 0;
+const tabs = [...document.querySelectorAll(".tab")];
+function show(id, focus) {
+  for (const s of ["check", "live", "verify", "case", "ops", "plan", "how", "practice"]) $("#" + s).classList.toggle("hidden", s !== id);
+  tabs.forEach((b) => {
+    const on = b.dataset.tab === id;
+    b.setAttribute("aria-selected", on);
+    b.tabIndex = on ? 0 : -1;
+    if (on && focus) b.focus();
+  });
+}
+tabs.forEach((b, i) => {
+  b.onclick = () => show(b.dataset.tab);
+  b.onkeydown = (e) => {
+    const k = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 1, ArrowUp: -1 }[e.key];
+    if (k) {
+      e.preventDefault();
+      show(tabs[(i + k + tabs.length) % tabs.length].dataset.tab, true);
+    }
+    if (e.key === "Home") {
+      e.preventDefault();
+      show(tabs[0].dataset.tab, true);
+    }
+    if (e.key === "End") {
+      e.preventDefault();
+      show(tabs[tabs.length - 1].dataset.tab, true);
+    }
+  };
+});
+$("#sizeBtn").onclick = (e) => {
+  const on = document.body.classList.toggle("large");
+  e.target.setAttribute("aria-pressed", on);
+};
+$("#themeBtn").onclick = (e) => {
+  const light = document.documentElement.dataset.theme !== "light";
+  document.documentElement.dataset.theme = light ? "light" : "dark";
+  e.target.setAttribute("aria-pressed", light);
+  e.target.textContent = light ? "Dark mode" : "Light mode";
+};
+document.querySelectorAll("#channels button").forEach((b) => b.onclick = () => {
+  document.querySelectorAll("#channels button").forEach((x) => x.setAttribute("aria-pressed", "false"));
+  b.setAttribute("aria-pressed", "true");
+  channel = b.textContent;
+});
+function chip(label, fn, host) {
+  const b = document.createElement("button");
+  b.className = "sm";
+  b.textContent = label;
+  b.onclick = fn;
+  $(host).appendChild(b);
+}
+for (const [name, text] of Object.entries(SAMPLES)) chip(name, () => {
+  $("#msg").value = text;
+  $("#sender").value = "";
+  run();
+}, "#samples");
+for (const c of CSAMPLES) chip(c, () => {
+  $("#contact").value = c;
+  vrun();
+}, "#csamples");
+$("#official").innerHTML = OFFICIAL.map((o) => "<tr><th>" + esc(o.type) + '</th><td dir="auto">' + esc(o.value) + "</td></tr>").join("");
+function highlight(text, found) {
+  const rank = { good: 1, low: 2, med: 3, high: 4 }, name = ["", "good", "low", "med", "high"];
+  const lv = new Uint8Array(text.length);
+  for (const f of found) for (const h of f.hits) for (let i2 = h.start; i2 < h.end; i2++) lv[i2] = Math.max(lv[i2], rank[f.sig.sev]);
+  let out = "", i = 0;
+  while (i < text.length) {
+    let j = i;
+    while (j < text.length && lv[j] === lv[i]) j++;
+    const chunk = esc(text.slice(i, j));
+    out += lv[i] ? '<mark class="' + name[lv[i]] + '">' + chunk + "</mark>" : chunk;
+    i = j;
+  }
+  return out;
+}
+const GLYPH = {
+  scam: '<circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10.5 10.5l11 11M21.5 10.5l-11 11" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>',
+  careful: '<path d="M16 4l13 23H3z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 12v7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="16" cy="23" r="1.6" fill="currentColor"/>',
+  ok: '<circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M9.5 16.5l4.5 4.5 8.5-9.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'
+};
+const TITLE = { scam: "Likely a scam", careful: "Be careful", ok: "No red flags found" };
+const LINE = {
+  scam: "This has several marks of a scam. Do not act on it.",
+  careful: "There are some warning signs. Check through an official channel before you do anything.",
+  ok: "Nothing here matches common scam patterns. Stay alert anyway."
+};
+const COLOR = { scam: "var(--red)", careful: "var(--yellow)", ok: "var(--green)" };
+function stepsFor(r) {
+  const ids = new Set(r.found.map((f) => f.sig.id));
+  if (r.verdict === "ok") return ["If anything in it asks for a code or password, stop and check first.", "When in doubt, open the operator\u2019s official app or type its website yourself."];
+  const s = ["Do not reply, click any link, call back the number in the message or install anything.", "Never share an OTP, PIN, password or card number. Real support will not ask for one."];
+  if (ids.has("remote")) s.push("If you already installed a remote-access app, uninstall it now and call your bank straight away.");
+  s.push("To check, contact the operator through its official app, website or the number on your bill.");
+  s.push("If you already shared a code or card details, call your bank and the operator now and change your passwords.");
+  s.push("Block the sender and report it. The button below prepares the report.");
+  return s;
+}
+function run() {
+  const raw = $("#msg").value;
+  if (!raw.trim()) {
+    $("#msg").focus();
+    return;
+  }
+  let r;
+  try {
+    r = analyse(raw, $("#sender").value);
+  } catch (e) {
+    $("#empty").textContent = "Something went wrong while checking this text. Please try again.";
+    $("#empty").classList.remove("hidden");
+    $("#result").classList.add("hidden");
+    return;
+  }
+  last = { r, channel, sender: $("#sender").value.trim() };
+  nChecked++;
+  if (r.verdict !== "ok") nFlag++;
+  $("#nChecked").textContent = nChecked;
+  $("#nFlag").textContent = nFlag;
+  $("#band").className = "band " + r.verdict;
+  $("#band").style.color = COLOR[r.verdict];
+  $("#glyph").innerHTML = GLYPH[r.verdict];
+  $("#vtitle").textContent = TITLE[r.verdict];
+  $("#vline").textContent = LINE[r.verdict] + (r.truncated ? " Only the first 6,000 characters were checked." : "");
+  $("#vline").style.color = "var(--text)";
+  if (r.seal === "ok") {
+    $("#vtitle").textContent = "Verified: genuine OperatorX message";
+    $("#vline").textContent = "This message carries the operator\u2019s seal and has not been changed since.";
+  }
+  if (r.seal === "bad") {
+    $("#vtitle").textContent = "Fake seal: do not trust it";
+    $("#vline").textContent = "It claims to be sealed by the operator, but the seal does not match the text.";
+  }
+  $("#vbar").style.width = Math.max(3, r.final) + "%";
+  $("#vbar").style.background = COLOR[r.verdict];
+  $("#mRule").textContent = r.rule + " of 100";
+  $("#mModel").textContent = r.band;
+  $("#mChan").textContent = channel;
+  $("#hl").innerHTML = highlight(r.text, r.found);
+  const tagText = { high: "High", med: "Warning", low: "Note", good: "Good" };
+  const items = r.found.slice().sort((a, b) => b.sig.weight - a.sig.weight).map((f) => '<li><span class="tagline t-' + f.sig.sev + '">' + tagText[f.sig.sev] + "</span><div><b>" + esc(f.sig.label) + '</b><span class="d">' + esc(f.sig.why) + "</span></div></li>");
+  for (const c of r.combos) items.unshift('<li><span class="tagline t-high">High</span><div><b>Dangerous combination</b><span class="d">' + esc(c) + "</span></div></li>");
+  $("#why").innerHTML = items.length ? items.join("") : '<li><span class="tagline t-good">Good</span><div><b>No warning signs found</b><span class="d">Nothing in this text matches the patterns we look for.</span></div></li>';
+  $("#steps").innerHTML = stepsFor(r).map((s) => "<li>" + esc(s) + "</li>").join("");
+  $("#copied").textContent = "";
+  if (window.__sidq && window.__sidq.links) window.__sidq.links($("#msg").value);
+  $("#empty").classList.add("hidden");
+  $("#result").classList.remove("hidden");
+  $("#vtitle").focus({ preventScroll: true });
+  $("#out").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
+}
+$("#go").onclick = run;
+$("#msg").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    run();
+  }
+});
+$("#clear").onclick = () => {
+  $("#msg").value = "";
+  $("#sender").value = "";
+  $("#result").classList.add("hidden");
+  $("#empty").classList.remove("hidden");
+  last = null;
+  $("#msg").focus();
+};
+function copyText(t) {
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t);
+  return new Promise((res, rej) => {
+    const ta = document.createElement("textarea");
+    ta.value = t;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+    }
+    ta.remove();
+    ok ? res() : rej();
+  });
+}
+$("#copyRep").onclick = () => {
+  if (!last) return;
+  const { r, channel: channel2, sender } = last;
+  const arabic = /[؀-ۿ]/.test(r.text), latin = /[A-Za-z]/.test(r.text);
+  const lang = arabic && latin ? "Arabic and English" : arabic ? "Arabic" : "English";
+  const signs = r.found.filter((f) => f.sig.weight > 0).map((f) => "- " + f.sig.label).join("\n") || "- none";
+  const rep = [
+    "SUSPECTED SCAM REPORT",
+    "Checked: " + (new Date()).toLocaleString(),
+    "Channel: " + channel2,
+    "Sender: " + (sender || "not provided"),
+    "Language: " + lang,
+    "Assessment: " + TITLE[r.verdict],
+    "Warning signs:",
+    signs,
+    "",
+    "Message:",
+    r.text
+  ].join("\n");
+  copyText(rep).then(
+    () => {
+      $("#copied").textContent = "Copied. Paste it into your report to the operator.";
+    },
+    () => {
+      $("#copied").textContent = "Could not copy automatically. Copy the message above and send it to the operator.";
+    }
+  );
+};
+function vrun() {
+  const r = verifyContact($("#contact").value);
+  if (!r) {
+    $("#contact").focus();
+    return;
+  }
+  const col = { ok: "var(--green)", sus: "var(--yellow)", scam: "var(--red)" }[r.level];
+  const lab = { ok: "Matches", sus: "Cannot confirm", scam: "Likely fake" }[r.level];
+  const box = $("#vres");
+  box.classList.remove("hidden");
+  box.innerHTML = '<div style="font-weight:650;color:' + col + '">' + lab + ": " + esc(r.title) + '</div><p style="margin:6px 0 0">' + esc(r.text) + "</p>";
+}
+$("#vgo").onclick = vrun;
+$("#contact").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") vrun();
+});
+</script>
+
+<script id="ops-js">
+(function() {
+  function rng(a) {
+    return function() {
+      a |= 0;
+      a = a + 1831565813 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  const rnd = rng(20261121);
+  const pick = (a) => a[Math.floor(rnd() * a.length)];
+  const digits = (n) => Array.from({ length: n }, () => Math.floor(rnd() * 10)).join("");
+  const DOMS = ["operatorx-billing.top", "operatorx-pay.xyz", "op3ratorx-help.click", "operatorx-refund.info", "secure-operatorx.icu"];
+  const spoofSender = () => pick(["+9733" + digits(7), "@operatorx_suport", "@operatorx.help" + digits(1), "OperatorX", "+9665" + digits(8), "@fast_help_line"]);
+  const okSender = () => pick(["OperatorX", "+973 1700 0000"]);
+  const SCAM = [
+    () => ({ text: "URGENT: Your bill payment failed and your line will be suspended in " + pick([1, 2, 3]) + " hours. Update your card details now: http://" + pick(DOMS) + "/pay", sender: spoofSender(), channel: "SMS" }),
+    () => ({ text: "Congratulations! You have been selected to win a free " + pick(["iPhone", "Samsung phone", "100GB data"]) + ". Claim your reward at bit.ly/" + pick(["free-gb-win", "claim-now", "op-gift"]), sender: spoofSender(), channel: pick(["SMS", "WhatsApp"]) }),
+    () => ({ text: "Hello, I'm from OperatorX official support. We noticed a security issue on your account. Please install AnyDesk and read me the code you get by SMS.", sender: pick(["@operatorx_suport", "+9733" + digits(7)]), channel: pick(["WhatsApp", "Call"]) }),
+    () => ({ text: "\u0639\u0632\u064A\u0632\u064A \u0627\u0644\u0639\u0645\u064A\u0644\u060C \u0633\u064A\u062A\u0645 \u062A\u0639\u0644\u064A\u0642 \u062E\u062F\u0645\u062A\u0643 \u062E\u0644\u0627\u0644 \u0633\u0627\u0639\u0629. \u0623\u0631\u0633\u0644 \u0631\u0645\u0632 \u0627\u0644\u062A\u062D\u0642\u0642 \u0627\u0644\u0630\u064A \u0648\u0635\u0644\u0643 \u0627\u0644\u0622\u0646", sender: spoofSender(), channel: "SMS" }),
+    () => ({ text: "Your parcel could not be delivered. Pay a delivery fee at www." + pick(["parcel-track-pay.com", "post-delivery-fee.top"]) + " to reschedule.", sender: spoofSender(), channel: "SMS" }),
+    () => ({ text: "You are eligible for a refund of BHD " + (20 + Math.floor(rnd() * 80)) + ". Confirm your card number and PIN to receive it immediately.", sender: spoofSender(), channel: pick(["Email", "Call"]) }),
+    () => ({ text: "Dear customer, as per regulation your SIM must be re-registered. Reply with your CPR and a photo of your ID.", sender: spoofSender(), channel: "SMS" }),
+    () => ({ text: "Hi, I'm Sarah from the network team. There is a problem with your line, can you call me back on +9733" + digits(7) + "?", sender: "+9733" + digits(7), channel: "Call" })
+  ];
+  const GOOD = [
+    () => ({ text: "Your " + pick(["October", "November"]) + " bill of BHD " + (5 + Math.floor(rnd() * 20)) + ".500 is ready. You can view and pay it in the official app. No action is needed if you use auto-pay.", sender: okSender(), channel: "SMS" }),
+    () => ({ text: "Your OTP is " + digits(6) + ". It is valid for 5 minutes. Never share this code with anyone, we will never ask for it.", sender: okSender(), channel: "SMS" }),
+    () => ({ text: "Thanks for contacting support. Your ticket number " + digits(5) + " has been resolved. Rate your experience in the app.", sender: okSender(), channel: "SMS" }),
+    () => ({ text: "Your plan renews on " + (1 + Math.floor(rnd() * 28)) + " December. Manage it anytime at operatorx.example or in the OperatorX app. No action needed.", sender: okSender(), channel: "SMS" }),
+    () => ({ text: "Planned maintenance tonight between 2 and 4 AM. Some services may be briefly unavailable.", sender: okSender(), channel: "SMS" }),
+    () => ({ text: "\u0641\u0627\u062A\u0648\u0631\u062A\u0643 \u0644\u0634\u0647\u0631 \u0623\u0643\u062A\u0648\u0628\u0631 \u062C\u0627\u0647\u0632\u0629. \u064A\u0645\u0643\u0646\u0643 \u0627\u0644\u0627\u0637\u0644\u0627\u0639 \u0639\u0644\u064A\u0647\u0627 \u0648\u0633\u062F\u0627\u062F\u0647\u0627 \u0645\u0646 \u062E\u0644\u0627\u0644 \u0627\u0644\u062A\u0637\u0628\u064A\u0642 \u0627\u0644\u0631\u0633\u0645\u064A. \u0644\u0627 \u064A\u0644\u0632\u0645 \u0627\u062A\u062E\u0627\u0630 \u0623\u064A \u0625\u062C\u0631\u0627\u0621", sender: okSender(), channel: "SMS" }),
+    () => ({ text: "Win a free 5GB bundle when you recharge BHD 5 this week. Terms apply. Details at operatorx.example", sender: okSender(), channel: "SMS" }),
+    () => ({ text: "Your refund of BHD 5 for the overcharge has been credited. See the app for details.", sender: okSender(), channel: "SMS" })
+  ];
+  const R = [];
+  let nextId = 1, timer = null, queue = [];
+  const $o = (s) => document.querySelector(s);
+  const lat = [];
+  function add(item) {
+    const t0 = performance.now();
+    const res = analyse(item.text, item.sender);
+    lat.push(performance.now() - t0);
+    if (lat.length > 500) lat.shift();
+    R.push({ id: nextId++, ts: item.ts || Date.now(), channel: item.channel || "SMS", sender: item.sender || "", text: res.text, truth: item.truth || "unknown", res });
+    if (R.length > 2e3) R.shift();
+  }
+  function genOne(ts) {
+    const scam = rnd() < 0.56, f = pick(scam ? SCAM : GOOD)();
+    return Object.assign(f, { truth: scam ? "scam" : "genuine", ts });
+  }
+  function loadBatch(n) {
+    const now = Date.now();
+    for (let i = 0; i < n; i++) add(genOne(now - (n - i) * 22 * 60 * 1e3));
+    render();
+  }
+  const siteC = canon(OFFICIAL.find((o) => o.type === "Website").value), offC = OFFICIAL.map((o) => canon(o.value));
+  function indicators(r) {
+    const dom = [];
+    const re = /\b(?:[a-z0-9-]+\.)+[a-z]{2,}\b/gi;
+    let m;
+    while (m = re.exec(r.text)) {
+      const h = m[0].toLowerCase();
+      if (h !== siteC && !h.endsWith("." + siteC)) dom.push(h);
+    }
+    const s = r.sender ? canon(r.sender) : "";
+    return { dom, sender: s && !offC.includes(s) ? s : "" };
+  }
+  const tokSet = (t) => new Set(tokens(t).filter((w) => !w.includes("_")));
+  function jac(a, b) {
+    let i = 0;
+    for (const x of a) if (b.has(x)) i++;
+    return i / (a.size + b.size - i || 1);
+  }
+  function clusters() {
+    const flagged = R.filter((r) => r.res.verdict !== "ok").sort((a, b) => a.ts - b.ts), C = [];
+    for (const r of flagged) {
+      const ind = indicators(r), ts = tokSet(r.text);
+      let hit = C.find((c) => {
+        const j = jac(ts, c.rep);
+        return ind.dom.some((d) => c.doms.has(d)) || ind.sender && c.senders.has(ind.sender) && j >= 0.2 || j >= 0.5;
+      });
+      if (!hit) {
+        hit = { items: [], doms: new Set(), senders: new Set(), rep: ts, ch: new Set() };
+        C.push(hit);
+      }
+      hit.items.push(r);
+      ind.dom.forEach((d) => hit.doms.add(d));
+      if (ind.sender) hit.senders.add(ind.sender);
+      hit.ch.add(r.channel);
+    }
+    return C.filter((c) => c.items.length >= 2).sort((a, b) => b.items.length - a.items.length);
+  }
+  function nameOf(c) {
+    const cnt = {};
+    for (const r of c.items) for (const f of r.res.found) cnt[f.sig.id] = (cnt[f.sig.id] || 0) + 1;
+    const names = { remote: "Fake support with remote access", credential: "Code or OTP request", payment: "Fee or payment scam", bait: "Prize or refund bait" };
+    let best = "", top = 0;
+    for (const id of ["remote", "credential", "payment", "bait"]) if ((cnt[id] || 0) > top) {
+      top = cnt[id];
+      best = id;
+    }
+    return top >= c.items.length * 0.5 ? names[best] : "Suspicious messages";
+  }
+  const pct = (n, d) => d ? Math.round(100 * n / d) + "%" : "n/a";
+  const tfmt = (ts) => new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const dfmt = (ts) => new Date(ts).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  function render() {
+    const n = R.length, flagged = R.filter((r) => r.res.verdict !== "ok").length;
+    let tp = 0, fn = 0, fp = 0, tn = 0;
+    for (const r of R) {
+      const f = r.res.verdict !== "ok";
+      if (r.truth === "scam") {
+        f ? tp++ : fn++;
+      } else if (r.truth === "genuine") {
+        f ? fp++ : tn++;
+      }
+    }
+    const C = clusters(), sorted = lat.slice().sort((a, b) => a - b);
+    const med = sorted.length ? sorted[Math.floor(sorted.length / 2)] : 0, p95 = sorted.length ? sorted[Math.floor(sorted.length * 0.95)] : 0;
+    $o("#kProc").textContent = n;
+    $o("#kFlag").textContent = pct(flagged, n);
+    $o("#kCamp").textContent = C.length;
+    $o("#kLat").textContent = med.toFixed(1) + " ms";
+    $o("#kLat95").textContent = p95.toFixed(1) + " ms";
+    $o("#kPrec").textContent = pct(tp, tp + fp);
+    $o("#kRec").textContent = pct(tp, tp + fn);
+    $o("#kFpr").textContent = pct(fp, fp + tn);
+    $o("#kConf").textContent = tp + fn + fp + tn ? "Labelled mock reports: " + tp + " scams caught, " + fn + " missed, " + fp + " genuine flagged, " + tn + " genuine passed. Synthetic data, so treat these as a demonstration, not a result." : "";
+    const body = $o("#opsTable tbody");
+    body.innerHTML = "";
+    for (const r of R.slice(-12).reverse()) {
+      const top = r.res.found.filter((f2) => f2.sig.weight > 0).sort((a, b) => b.sig.weight - a.sig.weight)[0];
+      const f = r.res.verdict !== "ok";
+      const chk = r.truth === "unknown" ? '<span class="dim">unlabelled</span>' : r.truth === "scam" === f ? '<span class="ok-t">correct</span>' : '<span class="bad-t">' + (r.truth === "scam" ? "missed" : "false alarm") + "</span>";
+      const tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + tfmt(r.ts) + "</td><td>" + esc(r.channel) + '</td><td dir="auto" title="' + esc(r.text.slice(0, 160)) + '">' + esc(r.sender || "unknown") + '</td><td><span class="vtag vt-' + r.res.verdict + '">' + { scam: "Likely scam", careful: "Be careful", ok: "No red flags" }[r.res.verdict] + "</span></td><td>" + esc(top ? top.sig.label : "none") + "</td><td>" + chk + "</td>";
+      body.appendChild(tr);
+    }
+    $o("#opsEmpty").classList.toggle("hidden", n > 0);
+    const box = $o("#opsCamps");
+    box.innerHTML = "";
+    C.slice(0, 6).forEach((c, i) => {
+      const doms = [...c.doms], snds = [...c.senders];
+      const d = document.createElement("div");
+      d.className = "camp";
+      d.innerHTML = "<h4>Campaign " + String.fromCharCode(65 + i) + ": " + esc(nameOf(c)) + ' <span class="dim">(' + c.items.length + ' reports)</span></h4><div class="dim" style="font-size:.88em">First seen ' + dfmt(c.items[0].ts) + ", last " + dfmt(c.items[c.items.length - 1].ts) + ". Via " + esc([...c.ch].join(", ")) + '.</div><div class="chips">' + doms.slice(0, 4).map((x) => "<code>" + esc(x) + "</code>").join("") + snds.slice(0, 3).map((x) => '<code dir="auto">' + esc(x) + "</code>").join("") + '</div><div class="dim" style="font-size:.88em;margin-bottom:8px" dir="auto">e.g. \u201C' + esc(c.items[c.items.length - 1].text.slice(0, 110)) + '\u2026\u201D</div><div class="row"></div>';
+      const row = d.querySelector(".row");
+      const q = document.createElement("button");
+      q.className = "sm";
+      q.textContent = "Queue indicators for review";
+      q.onclick = () => {
+        const items = [...doms.slice(0, 3).map((v) => ({ kind: "Link", v })), ...snds.slice(0, 2).map((v) => ({ kind: "Sender", v }))];
+        for (const it of items) if (!queue.some((x) => x.v === it.v)) queue.push({ kind: it.kind, v: it.v, why: nameOf(c) + ", " + c.items.length + " reports", ok: false });
+        renderQueue();
+      };
+      const a = document.createElement("button");
+      a.className = "sm";
+      a.textContent = "Draft advisory";
+      a.onclick = () => {
+        $o("#opsAdv").value = advisory(c);
+      };
+      row.append(q, a);
+      box.appendChild(d);
+    });
+    $o("#campEmpty").classList.toggle("hidden", C.length > 0);
+  }
+  function renderQueue() {
+    const box = $o("#opsQueue");
+    box.innerHTML = "";
+    queue.forEach((it) => {
+      const d = document.createElement("div");
+      d.className = "camp";
+      d.innerHTML = "<div><b>" + esc(it.kind) + '</b> <code dir="auto">' + esc(it.v) + '</code></div><div class="dim" style="font-size:.88em">' + esc(it.why) + '</div><div class="row" style="margin-top:6px"></div>';
+      const row = d.querySelector(".row");
+      if (it.ok) {
+        row.innerHTML = '<span class="ok-t" style="font-size:.9em">Approved by a second reviewer (simulated). In production the approver must be a different person from the one who queued it.</span>';
+      } else {
+        const b = document.createElement("button");
+        b.className = "sm";
+        b.textContent = "Approve as second reviewer";
+        b.onclick = () => {
+          it.ok = true;
+          renderQueue();
+        };
+        row.appendChild(b);
+        const s = document.createElement("span");
+        s.className = "dim";
+        s.style.fontSize = ".88em";
+        s.textContent = "Pending approval";
+        row.appendChild(s);
+      }
+      box.appendChild(d);
+    });
+    $o("#queueEmpty").classList.toggle("hidden", queue.length > 0);
+  }
+  function advisory(c) {
+    const what = { "Fake support with remote access": "ask you to install an app or give remote access to your phone", "Code or OTP request": "ask you for a verification code, PIN or password", "Fee or payment scam": "ask you to pay a fee or send money", "Prize or refund bait": "promise a prize or refund and ask you to click a link or share card details" }[nameOf(c)] || "ask you to act urgently";
+    return "CUSTOMER ADVISORY (draft, needs approval before sending)\n\nWe are seeing messages that claim to be from our support team and " + what + ".\n\nWe will never ask for your OTP, password or card details, and we will never ask you to install an app to fix your account.\n\nIf you get a message like this:\n- Do not reply, click any link or call the number in it.\n- Check through the official app or the number on your bill.\n- Report it in the app so we can act on it.\n\nIndicators seen so far: " + ([...c.doms].slice(0, 3).concat([...c.senders].slice(0, 2)).join(", ") || "none") + ".";
+  }
+  $o("#opsLoad").onclick = () => loadBatch(60);
+  $o("#opsReset").onclick = () => {
+    R.length = 0;
+    queue = [];
+    lat.length = 0;
+    $o("#opsAdv").value = "";
+    if (timer) {
+      $o("#opsLive").click();
+    }
+    render();
+    renderQueue();
+  };
+  $o("#opsLive").onclick = (e) => {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+      e.target.setAttribute("aria-pressed", "false");
+      e.target.textContent = "Start live feed";
+    } else {
+      timer = setInterval(() => {
+        add(genOne(Date.now()));
+        render();
+      }, 1500);
+      e.target.setAttribute("aria-pressed", "true");
+      e.target.textContent = "Pause live feed";
+    }
+  };
+  $o("#opsAdd").onclick = () => {
+    const text = $o("#opsText").value;
+    if (!text.trim()) {
+      $o("#opsMsg").textContent = "Type or paste a message first.";
+      return;
+    }
+    add({ text, sender: $o("#opsSender").value, channel: $o("#opsChan").value, truth: $o("#opsTruth").value });
+    $o("#opsText").value = "";
+    $o("#opsMsg").textContent = "Added.";
+    render();
+  };
+  $o("#opsExport").onclick = () => {
+    $o("#opsIO").value = JSON.stringify(R.map((r) => ({ text: r.text, sender: r.sender, channel: r.channel, truth: r.truth })), null, 1);
+    $o("#opsMsg").textContent = R.length + " reports exported below.";
+  };
+  $o("#opsImport").onclick = () => {
+    try {
+      const arr = JSON.parse($o("#opsIO").value);
+      if (!Array.isArray(arr)) throw new Error("not a list");
+      let k = 0;
+      for (const x of arr.slice(0, 2e3)) if (x && typeof x.text === "string" && x.text.trim()) {
+        add({ text: x.text.slice(0, 6e3), sender: typeof x.sender === "string" ? x.sender : "", channel: ["SMS", "WhatsApp", "Call", "Email", "Social"].includes(x.channel) ? x.channel : "SMS", truth: ["scam", "genuine"].includes(x.truth) ? x.truth : "unknown" });
+        k++;
+      }
+      $o("#opsMsg").textContent = "Imported " + k + " reports.";
+      render();
+    } catch (e) {
+      $o("#opsMsg").textContent = "Could not read that. It should be a JSON list of objects with a \u201Ctext\u201D field.";
+    }
+  };
+  $o("#opsCopy").onclick = () => {
+    const t = $o("#opsIO").value;
+    if (!t) return;
+    copyText(t).then(() => {
+      $o("#opsMsg").textContent = "Copied.";
+    }, () => {
+      $o("#opsMsg").textContent = "Could not copy automatically.";
+    });
+  };
+  render();
+  renderQueue();
+  const num = (id) => {
+    const v = parseFloat(document.getElementById(id).value);
+    return isFinite(v) && v >= 0 ? v : 0;
+  };
+  const usd = (v) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: v < 10 ? 3 : 0 }).format(v);
+  function cost() {
+    const basic = num("cUsers") * num("cChecks"), llm = basic * Math.min(100, num("cLlm")) / 100;
+    const run = basic / 1e6 * num("cCompute") + llm / 1e3 * num("cLlmCost") + num("cAnalysts") * num("cAnalystCost") + num("cEng") * num("cEngCost") + num("cComp") / 12;
+    const prevented = num("cIncidents") * Math.min(100, num("cPrevent")) / 100;
+    const value = prevented * num("cLoss") + num("cDefl") * num("cCall");
+    $o("#oRun").textContent = usd(run);
+    $o("#oPer").textContent = basic ? usd(run / basic) : "-";
+    $o("#oVal").textContent = usd(value - run);
+    const be = num("cLoss") ? Math.max(0, (run - num("cDefl") * num("cCall")) / num("cLoss")) : 0;
+    $o("#oBreak").textContent = num("cLoss") ? Math.ceil(be).toLocaleString("en-US") : "-";
+    $o("#oNote").textContent = "At these inputs about " + Math.round(prevented).toLocaleString("en-US") + " incidents are prevented per month, worth " + usd(prevented * num("cLoss")) + ", plus " + usd(num("cDefl") * num("cCall")) + " from support calls avoided.";
+  }
+  document.querySelectorAll("#plan input[type=number]").forEach((i) => i.addEventListener("input", cost));
+  cost();
+})();
+</script>
+<script id="features">
+(function() {
+  const PR = [];
+  for (let n = 2; PR.length < 64; n++) {
+    let ok = true;
+    for (let d = 2; d * d <= n; d++) if (n % d === 0) {
+      ok = false;
+      break;
+    }
+    if (ok) PR.push(n);
+  }
+  const fr = (x) => x - Math.floor(x);
+  const K = PR.map((p) => Math.floor(fr(Math.cbrt(p)) * 4294967296) >>> 0);
+  const H0 = PR.slice(0, 8).map((p) => Math.floor(fr(Math.sqrt(p)) * 4294967296) >>> 0);
+  function sha256(bytes) {
+    const l = bytes.length, nb = l + 9 + 63 >> 6 << 6, m = new Uint8Array(nb);
+    m.set(bytes);
+    m[l] = 128;
+    const dv = new DataView(m.buffer);
+    dv.setUint32(nb - 8, Math.floor(l / 536870912) >>> 0);
+    dv.setUint32(nb - 4, l << 3 >>> 0);
+    const h = H0.slice(), w = new Uint32Array(64), rr = (x, n) => x >>> n | x << 32 - n;
+    for (let o = 0; o < nb; o += 64) {
+      for (let i = 0; i < 16; i++) w[i] = dv.getUint32(o + i * 4);
+      for (let i = 16; i < 64; i++) {
+        const s0 = rr(w[i - 15], 7) ^ rr(w[i - 15], 18) ^ w[i - 15] >>> 3, s1 = rr(w[i - 2], 17) ^ rr(w[i - 2], 19) ^ w[i - 2] >>> 10;
+        w[i] = w[i - 16] + s0 + w[i - 7] + s1 >>> 0;
+      }
+      let [a, b, c, d, e, f, g, hh] = h;
+      for (let i = 0; i < 64; i++) {
+        const S1 = rr(e, 6) ^ rr(e, 11) ^ rr(e, 25), ch = e & f ^ ~e & g, t1 = hh + S1 + ch + K[i] + w[i] >>> 0;
+        const S0 = rr(a, 2) ^ rr(a, 13) ^ rr(a, 22), mj = a & b ^ a & c ^ b & c, t2 = S0 + mj >>> 0;
+        hh = g;
+        g = f;
+        f = e;
+        e = d + t1 >>> 0;
+        d = c;
+        c = b;
+        b = a;
+        a = t1 + t2 >>> 0;
+      }
+      [a, b, c, d, e, f, g, hh].forEach((v, i) => {
+        h[i] = h[i] + v >>> 0;
+      });
+    }
+    const out = new Uint8Array(32), ov = new DataView(out.buffer);
+    h.forEach((v, i) => ov.setUint32(i * 4, v));
+    return out;
+  }
+  const cat = (a, b) => {
+    const r = new Uint8Array(a.length + b.length);
+    r.set(a);
+    r.set(b, a.length);
+    return r;
+  };
+  function hmac(key, msg) {
+    const enc = new TextEncoder();
+    let k = enc.encode(key);
+    if (k.length > 64) k = sha256(k);
+    const kp = new Uint8Array(64);
+    kp.set(k);
+    return sha256(cat(kp.map((x) => x ^ 92), sha256(cat(kp.map((x) => x ^ 54), enc.encode(msg)))));
+  }
+  const SEAL_KEY = "operatorx-demo-key-not-secret", AL = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const norm = (s) => String(s).normalize("NFKC").replace(/\s+/g, " ").trim();
+  function tagOf(body) {
+    const h = hmac(SEAL_KEY, norm(body));
+    let acc = 0, nb = 0, out = "";
+    for (let i = 0; i < 5; i++) {
+      acc = acc << 8 | h[i];
+      nb += 8;
+      while (nb >= 5) {
+        out += AL[acc >> nb - 5 & 31];
+        nb -= 5;
+      }
+      acc &= (1 << nb) - 1;
+    }
+    return out;
+  }
+  const SEAL_RE = /\s*\bRef\s+OX-([A-Z2-9]{4})-([A-Z2-9]{4})\b/;
+  function stamp(body) {
+    const b = norm(body), t = tagOf(b);
+    return b + " Ref OX-" + t.slice(0, 4) + "-" + t.slice(4);
+  }
+  function sealCheck(text) {
+    const m = SEAL_RE.exec(text);
+    if (!m) return null;
+    const body = text.slice(0, m.index) + text.slice(m.index + m[0].length);
+    const lead = m[0].length - m[0].trimStart().length;
+    return { ok: tagOf(body) === m[1] + m[2], start: m.index + lead, end: m.index + m[0].length };
+  }
+  const CONF = { "\u0430": "a", "\u0435": "e", "\u043E": "o", "\u0440": "p", "\u0441": "c", "\u0445": "x", "\u0443": "y", "\u0456": "i", "\u0458": "j", "\u0455": "s", "\u0410": "A", "\u0412": "B", "\u0415": "E", "\u041A": "K", "\u041C": "M", "\u041D": "H", "\u041E": "O", "\u0420": "P", "\u0421": "C", "\u0422": "T", "\u0425": "X", "\u03BF": "o", "\u03B1": "a", "\u03B5": "e", "\u03C1": "p", "\u03B9": "i", "\u03C5": "u", "\u03BA": "k", "\u03BD": "v", "\u03C4": "t", "\u039F": "O", "\u0391": "A", "\u0395": "E", "\u03A1": "P", "\u03A4": "T", "\u039A": "K" };
+  const KEYWORDS = new Set(["otp", "code", "password", "passcode", "verify", "urgent", "account", "support", "card", "pin", "refund", "prize", "suspended", "install", "remote", "payment", "billing"]);
+  function foldText(s) {
+    s = String(s).replace(/[ً-ٰٟـ]/g, "");
+    return s.replace(/[\p{L}\d@$]+/gu, (w) => {
+      if (!/\p{Script=Latin}/u.test(w)) return w;
+      const f = [...w].map((ch) => CONF[ch] || ch).join("");
+      const l = f.replace(/0/g, "o").replace(/@/g, "a").replace(/\$/g, "s").replace(/3/g, "e").replace(/1/g, "i");
+      return KEYWORDS.has(l.toLowerCase()) ? l : f;
+    });
+  }
+  const despace = (s) => s.replace(/\b(?:[A-Za-z][\s.\-_*]){2,}[A-Za-z]\b/g, (m) => m.replace(/[\s.\-_*]/g, ""));
+  const AZ = [
+    ["credential", /\b(?:ab3at|ab3ath|ba3at|arsel|ersel|ursul)\b[^.\n]{0,30}\b(?:ramz|rmz|raqam|kod|kood)\b/gi],
+    ["urgency", /\b(?:3ajel|3ajil|3agel|fawran|fawr[a-z]*|khilal\s+(?:sa3a|sa3ah|sa3tain|\d+)|ra7\s+(?:yet|tet)\w+)\b/gi],
+    ["generic", /\b(?:3azizi|azizi)\s+(?:al|el)\s*3?ameel\b/gi],
+    ["bait", /\b(?:mabrook|mabrouk|rbe7et|rbi7t|jayza|jaa'?eza)\b/gi],
+    ["authority", /\b(?:el|al)\s+da3m\s+(?:el|al)\s+fanni\b/gi]
+  ].map(([id, re]) => ({ sig: SIGNALS.find((s) => s.id === id), re }));
+  function setArabizi(on) {
+    for (const { sig, re } of AZ) {
+      const i = sig.res.indexOf(re);
+      if (on && i < 0) sig.res.push(re);
+      if (!on && i >= 0) sig.res.splice(i, 1);
+    }
+  }
+  const GOVBH = {
+    id: "govbh",
+    label: "Claims to be a Bahrain government service",
+    weight: 18,
+    sev: "med",
+    why: "Traffic fines and government services are checked and paid in the MyGov app or the national portal, not through a link in a message. Scammers copy these names because everyone expects them.",
+    res: [
+      /\b(?:general directorate of traffic|traffic (?:fines?|violations?)|unpaid (?:traffic )?fines?|e-?gov(?:ernment)?(?:\s?bahrain)?|ekey|mygov|bahrain post|ministry of interior|electricity (?:and|&) water authority|bahrain\.bh)\b/gi,
+      /(?:الإدارة العامة للمرور|مخالفات? مرورية|المرور|مخالفة|بريد البحرين|هيئة الكهرباء والماء|وزارة الداخلية|حكومة البحرين)/g
+    ]
+  };
+  SIGNALS.push(GOVBH);
+  setArabizi(true);
+  SIGNALS.push(
+    {
+      id: "ussd",
+      label: "Asks you to dial a call-forwarding code",
+      weight: 40,
+      sev: "high",
+      floor: 60,
+      why: "Codes like *21*number# silently forward your calls and texts, including your bank\u2019s OTPs, to the scammer.",
+      res: [/(?:^|[\s(])[*#]{1,2}(?:21|61|62|67|002|004|401)\*[+\d]{5,}#?/g]
+    },
+    {
+      id: "simswap",
+      label: "Asks for SIM or number-transfer details",
+      weight: 38,
+      sev: "high",
+      neg: true,
+      floor: 58,
+      why: "A PUK, SIM serial number or porting code lets someone take over your number. Real support does not ask for them by message or call.",
+      res: [/\b(?:send|share|give|provide|tell|read(?: out)?|confirm|reply with)\b[^.\n]{0,40}\b(?:puk(?: code)?|sim (?:serial|number|card number)|iccid|porting code|port(?:-| )?out code|pac code|transfer code)\b/gi]
+    },
+    {
+      id: "callback",
+      label: "Tells you to call a number about a charge or problem",
+      weight: 24,
+      sev: "med",
+      why: "Callback scams have no link to click. They get you to phone the scammer, who then asks for codes or card details.",
+      res: [/\b(?:call|phone|contact)\b[^.\n]{0,25}(?:\+?\d[\d\s-]{7,}\d)[^.\n]{0,60}\b(?:cancel|dispute|refund|charge[sd]?|unauthori[sz]ed|suspend|block)/gi, /\b(?:charged|debited|billed|payment of)\b[^.\n]{0,40}\b(?:call|phone)\b[^.\n]{0,30}\d{7,}/gi]
+    },
+    {
+      id: "reversal",
+      label: "Asks you to send back a code \u201Csent by mistake\u201D",
+      weight: 40,
+      sev: "high",
+      floor: 58,
+      why: "In this trick the code was really sent to you by a service, and the scammer wants it forwarded to take over your account.",
+      res: [/\b(?:sent|texted)\b[^.\n]{0,30}\b(?:by mistake|wrong number|accident)\b[^.\n]{0,60}\b(?:code|number|otp)\b/gi, /\b(?:send|forward|read)\b[^.\n]{0,10}\b(?:it|the code|that code)\b[^.\n]{0,6}\bback\b/gi]
+    },
+    {
+      id: "urltrick",
+      label: "Link uses a disguised address",
+      weight: 30,
+      sev: "high",
+      floor: 55,
+      why: "Addresses with \u201Cxn--\u201D or with an @ before the real host are used to make a fake site look like a real one.",
+      res: [/\bhttps?:\/\/[^\s\/]*@[^\s]+/gi, /\bxn--[a-z0-9-]+\.[a-z]{2,}\b/gi]
+    }
+  );
+  const _base = analyse;
+  function hard(raw, sender) {
+    const base = _base(raw, sender);
+    const f = despace(foldText(raw));
+    if (f === String(raw)) return base;
+    const alt = _base(f, sender);
+    const same = alt.text.length === base.text.length, ids = new Set(base.found.map((x) => x.sig.id)), found = base.found.slice();
+    for (const x of alt.found) if (!ids.has(x.sig.id)) found.push(same ? x : { sig: x.sig, hits: [] });
+    const final = Math.max(base.final, alt.final);
+    if (final === base.final && found.length === base.found.length) return base;
+    const combos = base.combos.slice();
+    for (const c of alt.combos) if (!combos.includes(c)) combos.push(c);
+    return { ...base, final, verdict: final >= 55 ? "scam" : final >= 25 ? "careful" : "ok", rule: Math.max(base.rule, alt.rule), found, combos, hardened: true };
+  }
+  analyse = function(raw, sender) {
+    let r = hard(raw, sender);
+    const s = sealCheck(r.text);
+    if (!s) return r;
+    const span = [{ start: s.start, end: s.end }];
+    if (s.ok) {
+      const sig2 = { id: "sealOk", label: "Verified OperatorX seal", weight: -40, sev: "good", why: "The seal can only be made by the operator, and the text has not changed since it was sealed." };
+      return { ...r, final: 3, rule: 0, verdict: "ok", seal: "ok", combos: [], found: [{ sig: sig2, hits: span }, ...r.found.filter((f) => f.sig.sev === "good")] };
+    }
+    const sig = { id: "sealBad", label: "The seal does not match this text", weight: 45, sev: "high", floor: 55, why: "It claims to carry an OperatorX seal, but the text was changed after sealing or the seal is forged. Treat it as fake." };
+    const final = Math.max(r.final, 92);
+    return { ...r, final, rule: Math.max(r.rule, 90), verdict: "scam", seal: "bad", found: [{ sig, hits: span }, ...r.found] };
+  };
+  const NOTICE = "Your plan renews on 3 December. No action is needed. You can manage it anytime in the OperatorX app (operatorx.example). We will never ask for your password or OTP.";
+  const sealedGood = stamp(NOTICE), sealedEdited = sealedGood.replace("operatorx.example", "operatorx-billing.top");
+  chip("Sealed genuine notice", () => {
+    $("#msg").value = sealedGood;
+    $("#sender").value = "";
+    run();
+  }, "#samples");
+  chip("Sealed, then edited", () => {
+    $("#msg").value = sealedEdited;
+    $("#sender").value = "";
+    run();
+  }, "#samples");
+  chip("Fake traffic fine", () => {
+    $("#msg").value = "General Directorate of Traffic: You have an unpaid traffic fine of BHD 25. Pay within 24 hours to avoid extra penalties and legal action: http://bahrain-fines.top/pay";
+    $("#sender").value = "";
+    run();
+  }, "#samples");
+  chip("Fake parcel text", () => {
+    $("#msg").value = "Bahrain Post: your parcel could not be delivered. Pay a small re-delivery fee of BHD 1.5 to book a new delivery: https://bahrainpost-delivery.top/track";
+    $("#sender").value = "";
+    run();
+  }, "#samples");
+  chip("Fake eKey text", () => {
+    $("#msg").value = "eKey: your account will be suspended today. Verify your identity now at https://ekey-bh-verify.top and enter the code we send you.";
+    $("#sender").value = "";
+    run();
+  }, "#samples");
+  chip("Arabizi scam", () => {
+    $("#msg").value = "3azizi al 3ameel, khidmatak ra7 tet3alaq khilal sa3a. ab3at ramz al ta7aqoq elli wasalak fawran";
+    $("#sender").value = "";
+    run();
+  }, "#samples");
+  chip("Forwarding-code scam", () => {
+    $("#msg").value = "Network fault detected on your line. To restore service, dial *21*0097333123456# now.";
+    $("#sender").value = "";
+    run();
+  }, "#samples");
+  chip("SIM-swap request", () => {
+    $("#msg").value = "Security team: to keep your number active, please share your PUK code and SIM serial number.";
+    $("#sender").value = "";
+    run();
+  }, "#samples");
+  $("#sealGo").onclick = () => {
+    $("#sealOut").value = stamp($("#sealIn").value);
+  };
+  const useInCheck = (t) => {
+    $("#msg").value = t;
+    $("#sender").value = "";
+    show("check");
+    run();
+  };
+  $("#sealCheck").onclick = () => {
+    if (!$("#sealOut").value) $("#sealOut").value = stamp($("#sealIn").value);
+    useInCheck($("#sealOut").value);
+  };
+  $("#sealTamper").onclick = () => {
+    if (!$("#sealOut").value) $("#sealOut").value = stamp($("#sealIn").value);
+    const t = $("#sealOut").value;
+    useInCheck(/operatorx\.example/.test(t) ? t.replace("operatorx.example", "operatorx-billing.top") : t.replace(/^/, "Call +973 3999 1234. "));
+  };
+  const SEEDS_EN = [
+    "Please read me the code we just sent you to confirm your identity.",
+    "Send us the verification code you receive to keep your number active.",
+    "Install AnyDesk so our technician can fix your line.",
+    "Share your OTP and card details to unlock your account.",
+    "Your refund is ready. Confirm your card number and PIN to receive it.",
+    "Your line will be suspended today. Reply with your password to keep it active.",
+    "Congratulations, you won a prize! Pay the delivery fee to claim it.",
+    "Security team here. Tell me the OTP we just sent so I can cancel the login."
+  ];
+  const SEEDS_AR = ["\u0639\u0632\u064A\u0632\u064A \u0627\u0644\u0639\u0645\u064A\u0644\u060C \u0633\u064A\u062A\u0645 \u062A\u0639\u0644\u064A\u0642 \u062E\u062F\u0645\u062A\u0643 \u062E\u0644\u0627\u0644 \u0633\u0627\u0639\u0629. \u0623\u0631\u0633\u0644 \u0631\u0645\u0632 \u0627\u0644\u062A\u062D\u0642\u0642 \u0627\u0644\u0630\u064A \u0648\u0635\u0644\u0643 \u0627\u0644\u0622\u0646 \u0644\u062A\u062C\u0646\u0628 \u0625\u064A\u0642\u0627\u0641 \u0627\u0644\u062E\u0637", "\u0639\u0632\u064A\u0632\u064A \u0627\u0644\u0639\u0645\u064A\u0644\u060C \u062A\u0645 \u0625\u064A\u0642\u0627\u0641 \u062D\u0633\u0627\u0628\u0643. \u0623\u0631\u0633\u0644 \u0631\u0645\u0632 \u0627\u0644\u062A\u062D\u0642\u0642 \u0641\u0648\u0631\u0627 \u0644\u0625\u0639\u0627\u062F\u0629 \u0627\u0644\u062A\u0641\u0639\u064A\u0644", "\u0645\u0628\u0631\u0648\u0643 \u0644\u0642\u062F \u0631\u0628\u062D\u062A \u062C\u0627\u0626\u0632\u0629\u060C \u0627\u062F\u0641\u0639 \u0631\u0633\u0648\u0645 \u0645\u0639\u0627\u0644\u062C\u0629 \u0639\u0628\u0631 \u0627\u0644\u0631\u0627\u0628\u0637 bit.ly/ar-prize"];
+  const SEEDS_AZ = ["3azizi al 3ameel, khidmatak ra7 tet3alaq khilal sa3a. ab3at ramz al ta7aqoq elli wasalak fawran", "mrhaba, ana min el da3m el fanni. arsel el kod elli wasalak 3ala el jawwal fawran 3ashan ma yetwaqaf el khat", "3ajel: hesabak ra7 yetwaqaf. ab3at raqam el bitaqa wel ramz el sirri", "mabrook rbe7et jayza, ersel ramz el ta7aqoq la tastalem el jayza"];
+  const KEYRE = /^(?:otp|code|password|verify|verification|account|suspended|urgent|urgently|support|refund|prize|card|install|remote|immediately|payment|details)$/i;
+  const onKey = (s, fn) => s.replace(/[A-Za-z]{3,}/g, (w) => KEYRE.test(w) ? fn(w) : w);
+  const SWAP = { a: "\u0430", e: "\u0435", o: "\u043E", p: "\u0440", c: "\u0441", x: "\u0445" };
+  const SYN = [[/urgent(ly)?/gi, "important"], [/immediately/gi, "as soon as you can"], [/suspended/gi, "paused"], [/disconnected/gi, "switched off"], [/verification code/gi, "number we sent"], [/\bOTP\b/g, "number we just sent"], [/password/gi, "secret word"], [/refund/gi, "money back"], [/prize/gi, "gift"], [/Final warning/gi, "Reminder"]];
+  const MUT_EN = [
+    ["Look-alike letters from another alphabet", (s) => onKey(s, (w) => [...w].map((c) => SWAP[c] || c).join(""))],
+    ["Invisible characters inside words", (s) => onKey(s, (w) => w.slice(0, 2) + "\u200B" + w.slice(2))],
+    ["Spaced-out or dotted letters", (s) => onKey(s, (w) => w.length <= 8 ? w.split("").join(" ") : w)],
+    ["Digits and symbols for letters", (s) => onKey(s, (w) => w.replace(/o/gi, "0").replace(/a/gi, "@").replace(/e/gi, "3"))],
+    ["Rewording with everyday synonyms", (s) => SYN.reduce((t, [re, to]) => t.replace(re, to), s)]
+  ];
+  const MUT_AR = [["Arabic stretching characters (tatweel)", (s) => s.replace(/[؀-ۿ]{4,}/g, (w) => w.slice(0, 2) + "\u0640" + w.slice(2))]];
+  function rate(arr, fn) {
+    let hit = 0;
+    const miss = [];
+    for (const t of arr) {
+      const r = fn(t);
+      if (r.verdict === "scam") hit++;
+      else miss.push(t);
+    }
+    return { n: arr.length, hit, miss };
+  }
+  function redTeam() {
+    const rows = [];
+    const sets = [["Original scams (English)", SEEDS_EN], ["Original scams (Arabic)", SEEDS_AR], ...MUT_EN.map(([n, f]) => [n, SEEDS_EN.map(f)]), ...MUT_AR.map(([n, f]) => [n, SEEDS_AR.map(f)]), ["Arabizi (Arabic in Latin letters)", SEEDS_AZ]];
+    const keep = analyse;
+    for (const [name, arr] of sets) {
+      setArabizi(false);
+      const before = rate(arr, (t) => _base(t, ""));
+      setArabizi(true);
+      const after = rate(arr, (t) => keep(t, ""));
+      rows.push({ name, n: arr.length, b: before.hit, a: after.hit, miss: after.miss });
+    }
+    return rows;
+  }
+  $("#rtRun").onclick = () => {
+    const rows = redTeam(), tot = rows.reduce((s, r) => s + r.n, 0), tb = rows.reduce((s, r) => s + r.b, 0), ta = rows.reduce((s, r) => s + r.a, 0);
+    const pct = (a, n) => Math.round(100 * a / n) + "%";
+    $("#rtOut").innerHTML = '<table class="tbl"><tr><th>Evasion trick</th><th>Variants</th><th>Caught before</th><th>Caught after</th></tr>' + rows.map((r) => "<tr><td>" + esc(r.name) + "</td><td>" + r.n + '</td><td class="' + (r.b < r.n ? "bad-t" : "ok-t") + '">' + r.b + " (" + pct(r.b, r.n) + ')</td><td class="' + (r.a < r.n ? "bad-t" : "ok-t") + '">' + r.a + " (" + pct(r.a, r.n) + ")</td></tr>").join("") + "<tr><td><b>All variants</b></td><td><b>" + tot + "</b></td><td><b>" + tb + " (" + pct(tb, tot) + ")</b></td><td><b>" + ta + " (" + pct(ta, tot) + ')</b></td></tr></table><p class="hint" style="margin:10px 0 0">\u201CCaught\u201D means rated Likely a scam, the strict bar. Before = the original rules. After = with look-alike folding, de-spacing, Arabic cleanup and an Arabizi lexicon. The scams are written for this demo, and the fixes were written against these same tricks, so \u201Cafter\u201D is optimistic. The real test is a trick we have not seen.</p>' + (rows.some((r) => r.miss.length) ? '<p style="margin:10px 0 0"><b>Still getting through:</b> ' + esc(rows.filter((r) => r.miss.length).map((r) => r.name + " (" + r.miss.length + ")").join(", ")) + ". Rewording is the hardest: the words change, the intent does not, so production adds a language-model tier that reads intent.</p>" : "");
+    $("#rtNote").textContent = "Ran " + tot + " variants.";
+  };
+  const CALL = ["Hello, this is OperatorX technical support. How are you today?", "We noticed unusual activity on your line.", "To protect your account we need to verify your identity right now.", "Please open your messages and read me the code we just sent you.", "Also install AnyDesk so our technician can fix it. Do not tell anyone, this is confidential."];
+  let lines = [], alerted = false, timer = null, seen = new Set();
+  function callRender() {
+    const r = lines.length ? analyse(lines.join("\n"), "") : null;
+    let v = r ? r.verdict : "ok";
+    if (r && v === "scam" && !r.found.some((f) => f.sig.sev === "high")) v = "careful";
+    $("#callBand").className = "band " + (r ? v : "");
+    $("#callBand").style.color = r ? COLOR[v] : "";
+    $("#callGlyph").innerHTML = r ? GLYPH[v] : "";
+    $("#callTitle").textContent = r ? v === "scam" ? "Likely a scam call" : v === "careful" ? "Be careful" : "Nothing alarming so far" : "Waiting for the call";
+    $("#callLineMsg").textContent = r ? v === "scam" ? "Hang up. Do not share anything. Call the operator on the number in its official app." : v === "careful" ? "Warning signs are building. Do not share codes or install anything." : "Keep listening. The risk is re-checked after every line." : "Add what the caller says, or play the example.";
+    $("#callLineMsg").className = r ? "" : "dim";
+    $("#callBar").style.width = (r ? Math.max(3, r.final) : 0) + "%";
+    $("#callBar").style.background = r ? COLOR[v] : "";
+    $("#callScore").textContent = (r ? r.final : 0) + " of 100";
+    $("#callN").textContent = lines.length;
+    $("#callLog").innerHTML = lines.length ? lines.map((l) => "<div>" + esc(l) + "</div>").join("") : '<span class="dim">Nothing yet.</span>';
+    if (r && v === "scam" && !alerted) {
+      alerted = true;
+      const al = $("#callAlert");
+      al.classList.remove("hidden");
+      al.innerHTML = "<b>Hang up now.</b> This call matches a known scam pattern. It turned dangerous at line " + lines.length + ": \u201C" + esc(lines[lines.length - 1]) + "\u201D";
+      try {
+        navigator.vibrate && navigator.vibrate([200, 100, 200]);
+      } catch (e) {
+      }
+      $("#callTitle").focus({ preventScroll: true });
+    }
+  }
+  function callAdd(t) {
+    t = String(t || "").trim();
+    if (!t) return;
+    const before = lines.length ? analyse(lines.join("\n"), "") : { found: [], final: 0 };
+    lines.push(t);
+    const r = analyse(lines.join("\n"), "");
+    const ids = new Set(before.found.map((f) => f.sig.id)), nw = r.found.filter((f) => !ids.has(f.sig.id) && f.sig.weight > 0).map((f) => f.sig.label);
+    const li = document.createElement("li");
+    li.innerHTML = "Line " + lines.length + ": <b>" + r.final + "</b>" + (nw.length ? ' <span class="dim">\xB7 new: ' + esc(nw.join(", ")) + "</span>" : "");
+    if ($("#callTrail > li.dim")) $("#callTrail").innerHTML = "";
+    $("#callTrail").appendChild(li);
+    callRender();
+  }
+  function callReset() {
+    clearInterval(timer);
+    lines = [];
+    alerted = false;
+    $("#callAlert").classList.add("hidden");
+    $("#callTrail").innerHTML = '<li class="dim">No lines yet.</li>';
+    callRender();
+  }
+  $("#callAdd").onclick = () => {
+    callAdd($("#callLine").value);
+    $("#callLine").value = "";
+    $("#callLine").focus();
+  };
+  $("#callLine").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      $("#callAdd").click();
+    }
+  });
+  $("#callReset").onclick = callReset;
+  $("#callPlay").onclick = () => {
+    callReset();
+    let i = 0;
+    callAdd(CALL[i++]);
+    timer = setInterval(() => {
+      if (i >= CALL.length) {
+        clearInterval(timer);
+        return;
+      }
+      callAdd(CALL[i++]);
+    }, 1700);
+  };
+  callRender();
+  let C = null;
+  const mask = (t) => t.replace(/\d[\d\s-]{3,}\d/g, "\u2022\u2022\u2022\u2022").replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, "\u2022\u2022\u2022\u2022@\u2022\u2022\u2022\u2022");
+  const QS = [["code", "Did you share a code, password or card details?"], ["money", "Did you pay or transfer any money?"], ["app", "Did you install an app or give remote access?"], ["link", "Did you open the link or log in on a page?"]];
+  function priority(c) {
+    const a = c.ans;
+    return a.code === "yes" || a.money === "yes" || a.app === "yes" ? "P1 urgent" : a.link === "yes" ? "P2 soon" : "P3 routine";
+  }
+  function newCase(src) {
+    const r = src.r, id = "SS-" + Math.random().toString(36).slice(2, 7).toUpperCase();
+    C = { id, stage: 0, shotData: typeof shotData !== "undefined" ? shotData : null, opened: new Date(), channelIn: src.channel, sender: src.sender || "not provided", verdict: r.verdict, score: r.final, signs: r.found.filter((f) => f.sig.weight > 0).map((f) => f.sig.label), msg: mask(r.text).slice(0, 280), ans: {}, chan: "App", time: [] };
+    ev("Customer", "Checked a message that arrived by " + src.channel + " and opened this case from the app.");
+    renderCase();
+    show("case");
+  }
+  function ev(who2, text) {
+    C.time.push({ t: new Date(), who: who2, text });
+  }
+  function summary() {
+    const c = C, a = c.ans, known = [], ask = [];
+    for (const [k, q] of QS) (a[k] ? known : ask).push(a[k] ? q.replace("?", "") + ": " + a[k] : q);
+    const steps = [];
+    if (a.code === "yes") steps.push("Put a hold on SIM replacement and number porting; guide a password reset; tell the customer to call their bank.");
+    if (a.money === "yes") steps.push("Escalate to the fraud team with the bank partner; record payee details for recall.");
+    if (a.app === "yes") steps.push("Customer removes the remote-access app now; advise checking banking apps for activity.");
+    if (a.link === "yes") steps.push("Change any password typed on the page; watch the line for unusual charges.");
+    if (!steps.length) steps.push("Add the indicators to the campaign. Customer only needs to block the sender.");
+    return ["CASE " + c.id + " \xB7 " + priority(c).toUpperCase(), "Status: " + STAGES[c.stage || 0], "Channel now: " + c.chan + " (first contact: " + c.channelIn + ")", "Message was rated: " + TITLE[c.verdict] + " (" + c.score + "/100)", "Sender: " + c.sender, ...c.shotData ? ["Evidence: customer screenshot attached (kept with the case, not read automatically)"] : [], "Warning signs: " + (c.signs.join("; ") || "none"), "Message (masked): " + c.msg, "", "Already answered, do not ask again:", ...known.length ? known.map((x) => "  - " + x) : ["  - nothing yet"], "", "Only ask this:", ...ask.length ? ask.map((x) => "  - " + x) : ["  - nothing: all four questions are answered"], "", "Suggested next steps:", ...steps.map((x) => "  - " + x)].join("\n");
+  }
+  function renderCase() {
+    if (!C) return;
+    $("#caseBody").hidden = false;
+    $("#cRef").textContent = C.id;
+    const known = ["What the message said (stored masked)", ...C.shotData ? ["A screenshot is attached (kept with the case)"] : [], "Where it came from: " + C.sender + " by " + C.channelIn, "How it was rated: " + TITLE[C.verdict], ...QS.filter(([k]) => C.ans[k]).map(([k, q]) => q.replace("?", "") + ": " + C.ans[k])];
+    $("#cKnown").innerHTML = known.map((x) => "<li>" + esc(x) + "</li>").join("");
+    $("#cQs").innerHTML = QS.map(([k, q]) => '<div style="margin:8px 0"><div>' + esc(q) + '</div><div class="seg row" data-q="' + k + '" role="group" aria-label="' + esc(q) + '">' + ["yes", "no", "unsure"].map((v) => '<button aria-pressed="' + (C.ans[k] === v) + '" data-v="' + v + '">' + { yes: "Yes", no: "No", unsure: "Not sure" }[v] + "</button>").join("") + "</div></div>").join("");
+    document.querySelectorAll("#cQs [data-q]").forEach((g) => g.querySelectorAll("button").forEach((b) => b.onclick = () => {
+      C.ans[g.dataset.q] = b.dataset.v;
+      ev("Customer", "Answered: " + QS.find((x) => x[0] === g.dataset.q)[1] + " " + b.textContent);
+      renderCase();
+    }));
+    $("#cSummary").textContent = summary();
+    renderStage();
+    $("#cTime").innerHTML = C.time.map((e) => '<li><span class="dim">' + e.t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + "</span> \xB7 <b>" + esc(e.who) + "</b>: " + esc(e.text) + "</li>").join("");
+  }
+  document.querySelectorAll("#cChan button").forEach((b) => b.onclick = () => {
+    if (!C) return;
+    document.querySelectorAll("#cChan button").forEach((x) => x.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", "true");
+    C.chan = b.textContent;
+    ev("Agent (" + b.textContent + ")", "Opened the case from the reference. Customer did not repeat anything.");
+    renderCase();
+  });
+  $("#cCopy").onclick = () => copyText(summary()).then(() => {
+    $("#cCopied").textContent = "Copied.";
+  }, () => {
+    $("#cCopied").textContent = "Select the text and copy it.";
+  });
+  $("#caseBtn").onclick = () => {
+    if (last) newCase(last);
+  };
+  $("#caseDemo").onclick = () => {
+    $("#msg").value = SAMPLES["Fake support chat"];
+    $("#sender").value = "@operatorx_suport";
+    run();
+    newCase(last);
+    C.ans.code = "yes";
+    C.ans.app = "yes";
+    ev("Customer", "Answered the questions in the app.");
+    renderCase();
+  };
+  $("#hcBtn").onclick = (e) => {
+    const on = document.body.classList.toggle("hc");
+    e.target.setAttribute("aria-pressed", on);
+  };
+  $("#simpleBtn").onclick = (e) => {
+    const on = document.body.classList.toggle("simple");
+    document.body.classList.toggle("large", on);
+    $("#sizeBtn").setAttribute("aria-pressed", on);
+    e.target.setAttribute("aria-pressed", on);
+    if (on) show("check");
+  };
+  const hasSpeech = "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+  $("#readBtn").onclick = (e) => {
+    if (!last) return;
+    if (!hasSpeech) {
+      $("#copied").textContent = "Reading aloud is not available in this browser.";
+      return;
+    }
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+      e.target.setAttribute("aria-pressed", "false");
+      return;
+    }
+    const { r } = last, ar = /[؀-ۿ]/.test(r.text) && !/[A-Za-z]{4}/.test(r.text);
+    const txt = TITLE[r.verdict] + ". " + LINE[r.verdict] + " What to do. " + stepsFor(r).slice(0, 3).join(" ");
+    const u = new SpeechSynthesisUtterance(txt);
+    u.lang = ar ? "ar-SA" : "en-GB";
+    u.rate = 0.9;
+    u.onend = () => e.target.setAttribute("aria-pressed", "false");
+    e.target.setAttribute("aria-pressed", "true");
+    speechSynthesis.speak(u);
+  };
+  $("#trustBtn").onclick = () => {
+    if (!last) return;
+    const { r } = last;
+    const t = "Hello, I got this message and Sidq rated it \u201C" + TITLE[r.verdict] + "\u201D. Can you check it with me before I do anything?\n\n" + r.text.slice(0, 400);
+    copyText(t).then(() => {
+      $("#copied").textContent = "Copied. Paste it to someone you trust.";
+    }, () => {
+      $("#copied").textContent = "Could not copy automatically.";
+    });
+  };
+  const GQ = [["Did they ask for a code, password or card number?", 40], ["Are they rushing you or threatening to cut your service?", 20], ["Did they ask you to install an app or stay on the phone?", 30], ["Is it a prize, a refund or a link you did not expect?", 20]];
+  const ga = {};
+  $("#gq").innerHTML = GQ.map(([q], i) => '<div style="margin:8px 0"><div>' + esc(q) + '</div><div class="seg row" data-g="' + i + '" role="group" aria-label="' + esc(q) + '"><button aria-pressed="false" data-v="1">Yes</button><button aria-pressed="false" data-v="0">No</button></div></div>').join("");
+  document.querySelectorAll("#gq [data-g]").forEach((g) => g.querySelectorAll("button").forEach((b) => b.onclick = () => {
+    g.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", "true");
+    ga[g.dataset.g] = +b.dataset.v;
+    const sc = GQ.reduce((s, [, w], i) => s + (ga[i] ? w : 0), 0), answered = Object.keys(ga).length;
+    const v = ga[0] && sc >= 40 || sc >= 60 ? "scam" : sc >= 20 ? "careful" : "ok";
+    $("#gres").innerHTML = answered < 4 ? "Answer all four to see the result." : '<b style="color:' + COLOR[v] + '">' + TITLE[v] + ".</b> " + (v === "scam" ? "Do not reply, click or share anything. Check through the official app." : v === "careful" ? "Check through the official app or the number on your bill before you act." : "Stay alert, and never share a code.");
+  }));
+  const STAGES = ["Received", "Under review", "Number or link flagged", "Closed"];
+  function renderStage() {
+    const el = $("#cStage");
+    if (!el || !C) return;
+    const s = C.stage || 0;
+    el.innerHTML = STAGES.map((n, i) => '<li class="' + (i < s ? "done" : i === s ? "now" : "") + '"' + (i === s ? ' aria-current="step"' : "") + ">" + (i < s ? "\u2713 " : "") + esc(n) + "</li>").join("");
+    $("#cNext").disabled = s >= STAGES.length - 1;
+  }
+  $("#cNext").onclick = () => {
+    if (!C) return;
+    if ((C.stage || 0) < STAGES.length - 1) {
+      C.stage = (C.stage || 0) + 1;
+      ev("Agent", "Moved the case to: " + STAGES[C.stage]);
+      renderCase();
+    }
+  };
+  const AG_KEY = "operatorx-agent-demo-key-not-secret";
+  const agWin = (t = Date.now()) => Math.floor(t / 3e4);
+  const agRef = (s) => String(s || "").toUpperCase().replace(/[^A-Z0-9-]/g, "");
+  function agCode(ref, win) {
+    const h = hmac(AG_KEY, agRef(ref) + "|" + win);
+    return String((h[0] * 16777216 + (h[1] << 16) + (h[2] << 8) + h[3]) % 1e6).padStart(6, "0");
+  }
+  let agTimer = null, agFails = 0;
+  function agShow() {
+    const ref = agRef($("#agCase").value);
+    clearInterval(agTimer);
+    if (!ref) {
+      $("#agCode").textContent = "\u2013\u2013\u2013 \u2013\u2013\u2013";
+      $("#agTimer").textContent = "Enter the case reference first.";
+      return;
+    }
+    const paint = () => {
+      const c = agCode(ref, agWin());
+      $("#agCode").textContent = c.slice(0, 3) + " " + c.slice(3);
+      $("#agTimer").textContent = "Changes in " + (30 - Math.floor(Date.now() % 3e4 / 1e3)) + " seconds. Read it to the customer. Never ask them for a code.";
+    };
+    paint();
+    agTimer = setInterval(paint, 1e3);
+  }
+  function agCheck(ref, code, now = Date.now()) {
+    if (agFails >= 3) return "locked";
+    const r = agRef(ref), c = String(code || "").replace(/\D/g, "");
+    if (r && c.length === 6 && (c === agCode(r, agWin(now)) || c === agCode(r, agWin(now) - 1))) {
+      agFails = 0;
+      return "ok";
+    }
+    agFails++;
+    return agFails >= 3 ? "locked" : "bad";
+  }
+  $("#agGen").onclick = () => {
+    if (!$("#agCase").value.trim() && C) $("#agCase").value = C.id;
+    if (!$("#cuCase").value.trim() && C) $("#cuCase").value = C.id;
+    agShow();
+  };
+  $("#agCase").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") agShow();
+  });
+  function cuRun() {
+    const res = agCheck($("#cuCase").value, $("#cuCode").value), b = $("#cuBand");
+    b.classList.remove("hidden");
+    const ok = res === "ok";
+    b.className = "band " + (ok ? "ok" : "scam");
+    b.style.color = ok ? COLOR.ok : COLOR.scam;
+    $("#cuGlyph").innerHTML = GLYPH[ok ? "ok" : "scam"];
+    $("#cuTitle").textContent = ok ? "This is a genuine operator agent" : res === "locked" ? "Too many wrong tries" : "That code does not match";
+    $("#cuMsg").textContent = ok ? "The code matches your case. You can go ahead, and you still never need to read a code or password out to them." : res === "locked" ? "Do not carry on with this call. Hang up and phone the number on your bill or in the official app." : "Ask them to read it again. If it still does not match, hang up and call the number on your bill or in the official app. (" + (3 - agFails) + " tries left.)";
+    $("#cuTitle").focus({ preventScroll: true });
+  }
+  $("#cuCheck").onclick = cuRun;
+  $("#cuCode").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") cuRun();
+  });
+  const OFF_HOST = "operatorx.example", OFFS = ["operatorx.example", "bahrain.bh", "mygov.bh", "iga.gov.bh"], NAMES = ["operatorx", "bahrain", "mygov", "ekey", "egov"];
+  const SHORTS = /^(?:bit\.ly|tinyurl\.com|t\.co|ow\.ly|cutt\.ly|is\.gd|rb\.gy|goo\.gl|shorturl\.at)$/;
+  const BADTLD = /\.(?:top|xyz|click|site|info|link|cc|icu|buzz|live|shop|monster)$/;
+  function lev(a, b) {
+    const n = a.length, m = b.length, d = Array.from({ length: n + 1 }, (_, i) => {
+      const r = new Array(m + 1).fill(0);
+      r[0] = i;
+      return r;
+    });
+    for (let j = 0; j <= m; j++) d[0][j] = j;
+    for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d;
+  }
+  function diffHtml(off, host) {
+    const d = lev(off, host);
+    let i = off.length, j = host.length;
+    const A = new Array(off.length).fill(false), B = new Array(host.length).fill(false);
+    while (i > 0 || j > 0) {
+      if (i > 0 && j > 0 && off[i - 1] === host[j - 1] && d[i][j] === d[i - 1][j - 1]) {
+        i--;
+        j--;
+      } else if (i > 0 && j > 0 && d[i][j] === d[i - 1][j - 1] + 1) {
+        A[i - 1] = true;
+        B[j - 1] = true;
+        i--;
+        j--;
+      } else if (j > 0 && d[i][j] === d[i][j - 1] + 1) {
+        B[j - 1] = true;
+        j--;
+      } else {
+        A[i - 1] = true;
+        i--;
+      }
+    }
+    const paint = (s, F, cls) => {
+      let o = "", run2 = false;
+      for (let k = 0; k < s.length; k++) {
+        if (F[k] && !run2) {
+          o += '<mark class="' + cls + '">';
+          run2 = true;
+        }
+        if (!F[k] && run2) {
+          o += "</mark>";
+          run2 = false;
+        }
+        o += esc(s[k]);
+      }
+      return o + (run2 ? "</mark>" : "");
+    };
+    return { dist: d[off.length][host.length], official: paint(off, A, "dg"), link: paint(host, B, "dn") };
+  }
+  function hostOf(raw) {
+    let s = raw.replace(/^[a-z]+:\/\//i, "");
+    s = s.split(/[\/?#]/)[0];
+    let at = false;
+    if (s.includes("@")) {
+      s = s.slice(s.lastIndexOf("@") + 1);
+      at = true;
+    }
+    s = s.replace(/:\d+$/, "").replace(/[.,;:!?)\]]+$/, "").toLowerCase();
+    return { host: s, at };
+  }
+  function inspectLink(raw) {
+    const { host, at } = hostOf(raw);
+    const flat = host.replace(/-/g, "");
+    const odd = /[^\x00-\x7f]/.test(host) || host.includes("xn--");
+    const off = OFFS.some((o) => host === o || host.endsWith("." + o));
+    const near = OFFS.slice().sort((a, b) => lev(a, host.replace(/^www\./, ""))[a.length][host.replace(/^www\./, "").length] - lev(b, host.replace(/^www\./, ""))[b.length][host.replace(/^www\./, "").length])[0];
+    if (off && !at) return { host, kind: "ok", tag: "Official", head: "This is an official website.", why: "The address ends exactly in a known official address." };
+    if (SHORTS.test(host)) return { host, kind: "warn", tag: "Hidden", head: "A shortened link hides where it goes.", why: "Support teams link to their own website, not to a shortener." };
+    const dd = diffHtml(near, host.replace(/^www\./, ""));
+    const inside = OFFS.some((o) => host.includes(o));
+    if (at || odd || NAMES.some((n) => flat.includes(n)) || dd.dist <= 5) {
+      return { host, kind: "bad", tag: "Look-alike", head: "This is not an official website.", why: (inside && !at ? "It contains the official address, but only the very end of an address says who owns it, and this one ends somewhere else. " : at ? "It uses an @ sign to make the real address look like the official one. " : odd ? "It uses look-alike characters from other alphabets. " : NAMES.some((n) => flat.includes(n)) ? "It borrows an official name, but the address is somebody else\u2019s. " : "") + (at ? "" : "It is " + dd.dist + " character" + (dd.dist === 1 ? "" : "s") + " away from " + near + "."), diff: at ? null : dd };
+    }
+    return { host, kind: "warn", tag: "Unknown", head: "This is not an operator address.", why: "It does not match an official address." + (BADTLD.test(host) ? " The ending \u201C" + host.slice(host.lastIndexOf(".")) + "\u201D is cheap and common in scams." : ""), diff: dd.dist <= 8 ? dd : null };
+  }
+  const URLRE = /https?:\/\/[^\s<>"]+|\b(?:[a-z0-9-]+\.)+(?:com|net|org|bh|info|top|co|site|xyz|click|link|cc|ly|me|app|icu|buzz|live|shop|example)\b(?:\/[^\s<>"]*)?/gi;
+  function links(text) {
+    const found = [...new Set((String(text).match(URLRE) || []).map((s) => s.replace(/[.,;:!?)\]]+$/, "")))].slice(0, 6);
+    const sec = $("#linkSec");
+    if (!found.length) {
+      sec.classList.add("hidden");
+      $("#linkInsp").innerHTML = "";
+      return [];
+    }
+    const rs = found.map(inspectLink);
+    const T = { ok: "good", warn: "med", bad: "high" };
+    $("#linkInsp").innerHTML = rs.map((r) => '<li><span class="tagline t-' + T[r.kind] + '">' + r.tag + "</span><div><b>" + esc(r.host) + '</b><span class="d" style="display:block">' + esc(r.head + " " + r.why) + "</span>" + (r.diff ? '<div class="dfl" style="margin-top:6px"><div><span class="k">Official</span>' + r.diff.official + '</div><div><span class="k">This link</span>' + r.diff.link + "</div></div>" : "") + "</div></li>").join("");
+    sec.classList.remove("hidden");
+    return rs;
+  }
+  const PR_ITEMS = [
+    ["URGENT: Your OperatorX bill payment failed and your line will be suspended in 2 hours. Update your card details now: http://operatorx-billing.top/pay", true],
+    ["Your plan renews on 3 December. No action is needed. You can manage it anytime in the OperatorX app (operatorx.example). We will never ask for your password or OTP.", false],
+    [SEEDS_AR[0], true],
+    [sealedGood, false],
+    ["Hi, this is Sara from OperatorX billing. We overcharged you by BHD 12. To refund it, please send me the 6-digit code we just texted you so I can confirm it is you.", true],
+    ["Your OperatorX verification code is 481920. It expires in 10 minutes. Never share this code with anyone, including OperatorX staff.", false],
+    ["General Directorate of Traffic: You have an unpaid traffic fine of BHD 25. Pay within 24 hours to avoid legal action: http://bahrain-fines.top/pay", true],
+    ["\u0631\u0635\u064A\u062F\u0643 \u0627\u0644\u062D\u0627\u0644\u064A 3.200 \u062F\u064A\u0646\u0627\u0631. \u0634\u0643\u0631\u0627\u064B \u0644\u0627\u0633\u062A\u062E\u062F\u0627\u0645\u0643 \u062E\u062F\u0645\u0627\u062A\u0646\u0627.", false],
+    ["Pay a small delivery fee at https://parcel-fee-support.top to avoid cancellation of your parcel.", true],
+    ["Your roaming pack expires tomorrow. You can manage it in the OperatorX app (operatorx.example). No action is needed.", false]
+  ];
+  let pr = { i: 0, right: 0, done: false };
+  function prShow() {
+    const [t] = PR_ITEMS[pr.i];
+    $("#prN").textContent = pr.i + 1;
+    $("#prT").textContent = PR_ITEMS.length;
+    $("#prScore").textContent = pr.right;
+    $("#prMsg").textContent = t;
+    pr.done = false;
+    $("#prReveal").classList.add("hidden");
+    $("#prNext").classList.add("hidden");
+    $("#prAgain").classList.add("hidden");
+    $("#prScam").disabled = $("#prReal").disabled = false;
+  }
+  function prAnswer(saidScam) {
+    if (pr.done) return;
+    pr.done = true;
+    const [t, isScam] = PR_ITEMS[pr.i];
+    const r = analyse(t, "");
+    const right = saidScam === isScam;
+    if (right) pr.right++;
+    $("#prScore").textContent = pr.right;
+    $("#prScam").disabled = $("#prReal").disabled = true;
+    const why = r.found.filter((f) => f.sig.weight > 0).sort((a, b) => b.sig.weight - a.sig.weight).slice(0, 3).map((f) => f.sig.label);
+    const good = r.found.filter((f) => f.sig.weight < 0).slice(0, 2).map((f) => f.sig.label);
+    const rv = $("#prReveal");
+    rv.className = "sec prrev";
+    rv.innerHTML = '<p style="margin:0 0 6px"><b class="' + (right ? "ok" : "no") + '">' + (right ? "Right." : "Not this time.") + "</b> This one is " + (isScam ? "a scam" : "genuine") + '. The checker says: <b style="color:' + COLOR[r.verdict] + '">' + esc(r.seal === "ok" ? "Verified genuine (sealed)" : TITLE[r.verdict]) + "</b>.</p>" + (isScam ? why.length ? '<p class="hint" style="margin:0">What gives it away: ' + esc(why.join("; ")) + ".</p>" : "" : '<p class="hint" style="margin:0">' + esc(r.seal === "ok" ? "It carries the operator\u2019s seal, which cannot be faked or edited." : good.length ? "Reassuring signs: " + good.join("; ") + "." : "It asks for nothing and has no warning signs.") + "</p>");
+    if (pr.i < PR_ITEMS.length - 1) $("#prNext").classList.remove("hidden");
+    else {
+      rv.innerHTML += '<p style="margin:10px 0 0"><b>You got ' + pr.right + " of " + PR_ITEMS.length + ".</b> " + (pr.right === PR_ITEMS.length ? "Nothing got past you." : "The ones to remember: nobody real asks for a code, and a real link ends exactly in the official address.") + "</p>";
+      $("#prAgain").classList.remove("hidden");
+    }
+  }
+  $("#prScam").onclick = () => prAnswer(true);
+  $("#prReal").onclick = () => prAnswer(false);
+  $("#prNext").onclick = () => {
+    pr.i++;
+    prShow();
+    $("#prMsg").focus && 0;
+  };
+  $("#prAgain").onclick = () => {
+    pr = { i: 0, right: 0, done: false };
+    prShow();
+  };
+  prShow();
+  const ROLES = { customer: { name: "Amal H.", role: "Customer", email: "amal@demo.sidq", land: "check" }, agent: { name: "Fatima N.", role: "Support agent", email: "fatima@demo-operator.example", land: "case" }, analyst: { name: "Khalid M.", role: "Fraud analyst", email: "khalid@demo-operator.example", land: "ops" } };
+  let who = null;
+  function loginOpen() {
+    $("#login").classList.remove("hidden");
+    $("#appWrap").inert = true;
+    $("#loginT").focus();
+  }
+  function loginAs(role, quiet) {
+    $("#login").classList.add("hidden");
+    try {
+      $("#appWrap").inert = false;
+    } catch (_) {
+    }
+    who = ROLES[role] || ROLES.customer;
+    $("#uName").textContent = who.name;
+    $("#uRole").textContent = who.role;
+    $("#uAv").textContent = who.name[0];
+    $("#login").classList.add("hidden");
+    $("#appWrap").inert = false;
+    show(who.land, !quiet);
+    if (!quiet) $("#tab-" + who.land).focus();
+  }
+  document.querySelectorAll("input[name=lrole]").forEach((r) => r.onchange = () => {
+    $("#lUser").value = ROLES[r.value].email;
+  });
+  const loginGo = () => {
+    const r = document.querySelector("input[name=lrole]:checked");
+    loginAs(r ? r.value : "customer");
+  };
+  $("#loginGo").addEventListener("click", loginGo);
+  $("#login").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.tagName !== "BUTTON") {
+      e.preventDefault();
+      loginGo();
+    }
+  });
+  $("#loginSkip").onclick = () => loginAs("customer");
+  $("#signOut").onclick = () => {
+    who = null;
+    $("#uName").textContent = "Not signed in";
+    $("#uRole").textContent = "";
+    $("#uAv").textContent = "?";
+    loginOpen();
+  };
+  if (location.hash === "#nologin") loginAs("customer", true);
+  else loginOpen();
+  let shotData = null;
+  const shotOK = (f) => f && /^image\/(png|jpe?g|webp|gif)$/.test(f.type);
+  function shotSet(f) {
+    const note = $("#shotNote");
+    if (!shotOK(f)) {
+      note.textContent = "That file is not a picture we can show. Use a PNG, JPEG, WebP or GIF.";
+      return false;
+    }
+    if (f.size > 5 * 1024 * 1024) {
+      note.textContent = "That picture is over 5 MB. Try a smaller screenshot.";
+      return false;
+    }
+    const fr2 = new FileReader();
+    fr2.onload = () => {
+      shotData = fr2.result;
+      $("#shotImg").src = shotData;
+      $("#shotName").textContent = (f.name || "Pasted screenshot") + " (" + Math.max(1, Math.round(f.size / 1024)) + " KB)";
+      $("#shotPrev").classList.remove("hidden");
+      note.textContent = "Attached. It is kept on this page and goes with your report. Now type or paste what it says in the box above, so it can be checked.";
+    };
+    fr2.readAsDataURL(f);
+    return true;
+  }
+  function shotClear() {
+    shotData = null;
+    $("#shotImg").removeAttribute("src");
+    $("#shotPrev").classList.add("hidden");
+    $("#shotFile").value = "";
+  }
+  $("#shotDrop").onclick = () => $("#shotFile").click();
+  $("#shotDrop").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      $("#shotFile").click();
+    }
+  });
+  $("#shotFile").onchange = (e) => {
+    if (e.target.files[0]) shotSet(e.target.files[0]);
+  };
+  $("#shotDel").onclick = () => {
+    shotClear();
+    $("#shotNote").textContent = "Removed.";
+  };
+  ["dragenter", "dragover"].forEach((n) => $("#shotDrop").addEventListener(n, (e) => {
+    e.preventDefault();
+    $("#shotDrop").classList.add("over");
+  }));
+  ["dragleave", "drop"].forEach((n) => $("#shotDrop").addEventListener(n, (e) => {
+    e.preventDefault();
+    $("#shotDrop").classList.remove("over");
+  }));
+  $("#shotDrop").addEventListener("drop", (e) => {
+    const f = e.dataTransfer && e.dataTransfer.files[0];
+    if (f) shotSet(f);
+  });
+  document.addEventListener("paste", (e) => {
+    if ($("#check").classList.contains("hidden")) return;
+    const f = [...e.clipboardData ? e.clipboardData.files : []].find(shotOK);
+    if (f) {
+      e.preventDefault();
+      shotSet(f);
+    }
+  });
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let micLang = "en-US";
+  function micMake(btn, note, onFinal, continuous) {
+    let rec = null;
+    btn.onclick = () => {
+      if (rec) {
+        rec.stop();
+        return;
+      }
+      rec = new SR();
+      rec.lang = micLang;
+      rec.continuous = !!continuous;
+      rec.interimResults = false;
+      rec.onresult = (ev2) => {
+        for (let i = ev2.resultIndex; i < ev2.results.length; i++) if (ev2.results[i].isFinal) onFinal(ev2.results[i][0].transcript.trim());
+      };
+      rec.onerror = (ev2) => {
+        note.textContent = ev2.error === "not-allowed" ? "Microphone permission was refused." : ev2.error === "network" ? "The speech service could not be reached. Type it instead." : "Could not hear that. Try again or type it.";
+      };
+      rec.onend = () => {
+        rec = null;
+        btn.setAttribute("aria-pressed", "false");
+        if (!/refused|reached|Could not/.test(note.textContent)) note.textContent = "";
+      };
+      btn.setAttribute("aria-pressed", "true");
+      note.textContent = "Listening\u2026";
+      try {
+        rec.start();
+      } catch (_) {
+        rec = null;
+        btn.setAttribute("aria-pressed", "false");
+      }
+    };
+  }
+  if (SR) {
+    micMake($("#micBtn"), $("#micNote"), (t) => {
+      const m = $("#msg");
+      m.value = (m.value ? m.value.replace(/\s*$/, " ") : "") + t;
+      $("#micNote").textContent = "Added. Check it, then press Check.";
+    }, false);
+    micMake($("#micBtnL"), $("#micNoteL"), (t) => {
+      if (t) callAdd(t);
+    }, true);
+    document.querySelectorAll(".micLang").forEach((b) => b.onclick = () => {
+      micLang = micLang === "en-US" ? "ar-BH" : "en-US";
+      document.querySelectorAll(".micLang").forEach((x) => x.textContent = micLang === "en-US" ? "English" : "\u0627\u0644\u0639\u0631\u0628\u064A\u0629");
+    });
+  } else {
+    ["#micRow", "#micWarn", "#micRowL"].forEach((s) => $(s).classList.add("hidden"));
+  }
+  const TIPS = [
+    ["A real support team never needs your code.", "If a message or caller asks for a one-time code, a password or a PIN, stop. Open the official app yourself, or call a number you already trust."],
+    ["Being rushed is the trick.", "Scammers say your line will be cut in two hours so that you will not stop to think. A real operator gives you time, and a way to check."],
+    ["Read the end of the address.", "Only the very end of a web address says who owns it. operatorx.example is the operator. operatorx-billing.top is not, however much it looks like it."],
+    ["Do not let them move you somewhere private.", "Real support does not ask you to carry on in WhatsApp or Telegram, and never asks you to install an app that lets them see your screen."],
+    ["In Bahrain, fines are not paid through a text link.", "Fake traffic-fine messages are common, and their links lead to copies of the national portal. The General Directorate of Traffic says fines are checked and paid only through official channels, the MyGov app and the national e-government portal."],
+    ["Ask the caller to prove it first.", "If a rollout like this one is in place, a genuine agent can read you a code tied to your case. A scammer has nothing to read out. Either way, you can hang up and call back on the number on your bill."]
+  ];
+  let tipI = 0;
+  function tipShow() {
+    const [h, t] = TIPS[tipI];
+    $("#tipH").textContent = h;
+    $("#tipP").textContent = t;
+    $("#tipN").textContent = "Tip " + (tipI + 1) + " of " + TIPS.length;
+  }
+  function say(text, btn, lang) {
+    if (!hasSpeech) {
+      return false;
+    }
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+      btn.setAttribute("aria-pressed", "false");
+      return true;
+    }
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang || "en-GB";
+    u.rate = 0.92;
+    u.onend = () => btn.setAttribute("aria-pressed", "false");
+    btn.setAttribute("aria-pressed", "true");
+    speechSynthesis.speak(u);
+    return true;
+  }
+  $("#tipNext").onclick = () => {
+    tipI = (tipI + 1) % TIPS.length;
+    tipShow();
+  };
+  $("#tipHear").onclick = (e) => {
+    if (!say(TIPS[tipI][0] + " " + TIPS[tipI][1], e.target)) $("#tipN").textContent = "Listening is not available in this browser.";
+  };
+  $("#prHear").onclick = (e) => {
+    const t = PR_ITEMS[pr.i][0], ar = /[؀-ۿ]/.test(t);
+    if (!say(t, e.target, ar ? "ar-SA" : "en-GB")) e.target.textContent = "Not available here";
+  };
+  if (!hasSpeech) {
+    $("#tipHear").classList.add("hidden");
+    $("#prHear").classList.add("hidden");
+  }
+  tipShow();
+  window.__sidq = { sha256, hmac, tagOf, stamp, sealCheck, foldText, despace, redTeam, setArabizi, _base, callAdd, callReset, links, inspectLink, agCode, agCheck, agWin, prAnswer, PR_ITEMS, STAGES, loginAs, shotSet, TIPS };
+})();
+</script>
+</body>
+</html>

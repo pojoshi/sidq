@@ -1,0 +1,748 @@
+[
+ {
+  "text": "Thanks for contacting support. Your ticket number 59527 has been resolved. Rate your experience in the app.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your plan renews on 10 December. Manage it anytime at operatorx.example or in the OperatorX app. No action needed.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "فاتورتك لشهر أكتوبر جاهزة. يمكنك الاطلاع عليها وسدادها من خلال التطبيق الرسمي. لا يلزم اتخاذ أي إجراء",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "فاتورتك لشهر أكتوبر جاهزة. يمكنك الاطلاع عليها وسدادها من خلال التطبيق الرسمي. لا يلزم اتخاذ أي إجراء",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your parcel could not be delivered. Pay a delivery fee at www.post-delivery-fee.top to reschedule.",
+  "sender": "@operatorx.help5",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 94,
+  "signs": [
+   "payment",
+   "shortlink",
+   "link",
+   "senderFake"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Your OTP is 423636. It is valid for 5 minutes. Never share this code with anyone, we will never ask for it.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your parcel could not be delivered. Pay a delivery fee at www.post-delivery-fee.top to reschedule.",
+  "sender": "+966555896587",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 71,
+  "signs": [
+   "payment",
+   "shortlink",
+   "link",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Hi, I'm Sarah from the network team. There is a problem with your line, can you call me back on +97338724062?",
+  "sender": "+97334798352",
+  "channel": "Call",
+  "verdict": "ok",
+  "score": 22,
+  "signs": [
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Hi, I'm Sarah from the network team. There is a problem with your line, can you call me back on +97332217874?",
+  "sender": "+97333574580",
+  "channel": "Call",
+  "verdict": "ok",
+  "score": 22,
+  "signs": [
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "You are eligible for a refund of BHD 64. Confirm your card number and PIN to receive it immediately.",
+  "sender": "+966519458839",
+  "channel": "Call",
+  "verdict": "scam",
+  "score": 100,
+  "signs": [
+   "credential",
+   "bait",
+   "urgency",
+   "verify",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Dear customer, as per regulation your SIM must be re-registered. Reply with your CPR and a photo of your ID.",
+  "sender": "@operatorx.help4",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 88,
+  "signs": [
+   "credential",
+   "generic",
+   "senderFake"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Your refund of BHD 5 for the overcharge has been credited. See the app for details.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 14,
+  "signs": [
+   "bait"
+  ],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "You are eligible for a refund of BHD 73. Confirm your card number and PIN to receive it immediately.",
+  "sender": "+97337864422",
+  "channel": "Call",
+  "verdict": "scam",
+  "score": 100,
+  "signs": [
+   "credential",
+   "bait",
+   "urgency",
+   "verify",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Congratulations! You have been selected to win a free 100GB data. Claim your reward at bit.ly/free-gb-win",
+  "sender": "+97335192070",
+  "channel": "WhatsApp",
+  "verdict": "scam",
+  "score": 73,
+  "signs": [
+   "bait",
+   "shortlink",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Dear customer, as per regulation your SIM must be re-registered. Reply with your CPR and a photo of your ID.",
+  "sender": "@operatorx_suport",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 88,
+  "signs": [
+   "credential",
+   "generic",
+   "senderFake"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Your OTP is 353153. It is valid for 5 minutes. Never share this code with anyone, we will never ask for it.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Dear customer, as per regulation your SIM must be re-registered. Reply with your CPR and a photo of your ID.",
+  "sender": "+97337447830",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 66,
+  "signs": [
+   "credential",
+   "generic",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Hi, I'm Sarah from the network team. There is a problem with your line, can you call me back on +97339808167?",
+  "sender": "+97334396324",
+  "channel": "Call",
+  "verdict": "ok",
+  "score": 22,
+  "signs": [
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Your refund of BHD 5 for the overcharge has been credited. See the app for details.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 14,
+  "signs": [
+   "bait"
+  ],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your plan renews on 18 December. Manage it anytime at operatorx.example or in the OperatorX app. No action needed.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "URGENT: Your bill payment failed and your line will be suspended in 3 hours. Update your card details now: http://operatorx-pay.xyz/pay",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 96,
+  "signs": [
+   "shortlink",
+   "urgency",
+   "verify",
+   "link",
+   "lookalikeDomain"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Your refund of BHD 5 for the overcharge has been credited. See the app for details.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 14,
+  "signs": [
+   "bait"
+  ],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "You are eligible for a refund of BHD 32. Confirm your card number and PIN to receive it immediately.",
+  "sender": "@fast_help_line",
+  "channel": "Call",
+  "verdict": "scam",
+  "score": 100,
+  "signs": [
+   "credential",
+   "bait",
+   "urgency",
+   "verify",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Win a free 5GB bundle when you recharge BHD 5 this week. Terms apply. Details at operatorx.example",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "careful",
+  "score": 27,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "You are eligible for a refund of BHD 93. Confirm your card number and PIN to receive it immediately.",
+  "sender": "@operatorx_suport",
+  "channel": "Email",
+  "verdict": "scam",
+  "score": 100,
+  "signs": [
+   "credential",
+   "bait",
+   "urgency",
+   "verify",
+   "senderFake"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "URGENT: Your bill payment failed and your line will be suspended in 1 hours. Update your card details now: http://operatorx-refund.info/pay",
+  "sender": "+966540795051",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 100,
+  "signs": [
+   "bait",
+   "shortlink",
+   "urgency",
+   "verify",
+   "link",
+   "lookalikeDomain",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Your plan renews on 26 December. Manage it anytime at operatorx.example or in the OperatorX app. No action needed.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Congratulations! You have been selected to win a free Samsung phone. Claim your reward at bit.ly/claim-now",
+  "sender": "@operatorx.help9",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 95,
+  "signs": [
+   "bait",
+   "shortlink",
+   "senderFake"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Congratulations! You have been selected to win a free iPhone. Claim your reward at bit.ly/op-gift",
+  "sender": "@operatorx.help5",
+  "channel": "WhatsApp",
+  "verdict": "scam",
+  "score": 95,
+  "signs": [
+   "bait",
+   "shortlink",
+   "senderFake"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Planned maintenance tonight between 2 and 4 AM. Some services may be briefly unavailable.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your parcel could not be delivered. Pay a delivery fee at www.parcel-track-pay.com to reschedule.",
+  "sender": "+966596208041",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 71,
+  "signs": [
+   "payment",
+   "shortlink",
+   "link",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Planned maintenance tonight between 2 and 4 AM. Some services may be briefly unavailable.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your parcel could not be delivered. Pay a delivery fee at www.parcel-track-pay.com to reschedule.",
+  "sender": "@fast_help_line",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 71,
+  "signs": [
+   "payment",
+   "shortlink",
+   "link",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "You are eligible for a refund of BHD 34. Confirm your card number and PIN to receive it immediately.",
+  "sender": "OperatorX",
+  "channel": "Call",
+  "verdict": "scam",
+  "score": 100,
+  "signs": [
+   "credential",
+   "bait",
+   "urgency",
+   "verify"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Thanks for contacting support. Your ticket number 03137 has been resolved. Rate your experience in the app.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your parcel could not be delivered. Pay a delivery fee at www.post-delivery-fee.top to reschedule.",
+  "sender": "@operatorx.help9",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 94,
+  "signs": [
+   "payment",
+   "shortlink",
+   "link",
+   "senderFake"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Hello, I'm from OperatorX official support. We noticed a security issue on your account. Please install AnyDesk and read me the code you get by SMS.",
+  "sender": "+97338021873",
+  "channel": "Call",
+  "verdict": "scam",
+  "score": 99,
+  "signs": [
+   "credential",
+   "remote",
+   "authority",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Planned maintenance tonight between 2 and 4 AM. Some services may be briefly unavailable.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Dear customer, as per regulation your SIM must be re-registered. Reply with your CPR and a photo of your ID.",
+  "sender": "@operatorx_suport",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 88,
+  "signs": [
+   "credential",
+   "generic",
+   "senderFake"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Hello, I'm from OperatorX official support. We noticed a security issue on your account. Please install AnyDesk and read me the code you get by SMS.",
+  "sender": "+97330280456",
+  "channel": "Call",
+  "verdict": "scam",
+  "score": 99,
+  "signs": [
+   "credential",
+   "remote",
+   "authority",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Your parcel could not be delivered. Pay a delivery fee at www.parcel-track-pay.com to reschedule.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 68,
+  "signs": [
+   "payment",
+   "shortlink",
+   "link"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Thanks for contacting support. Your ticket number 62217 has been resolved. Rate your experience in the app.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your OTP is 820885. It is valid for 5 minutes. Never share this code with anyone, we will never ask for it.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your October bill of BHD 23.500 is ready. You can view and pay it in the official app. No action is needed if you use auto-pay.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "فاتورتك لشهر أكتوبر جاهزة. يمكنك الاطلاع عليها وسدادها من خلال التطبيق الرسمي. لا يلزم اتخاذ أي إجراء",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "عزيزي العميل، سيتم تعليق خدمتك خلال ساعة. أرسل رمز التحقق الذي وصلك الآن",
+  "sender": "@fast_help_line",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 88,
+  "signs": [
+   "credential",
+   "urgency",
+   "generic",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Your plan renews on 10 December. Manage it anytime at operatorx.example or in the OperatorX app. No action needed.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your refund of BHD 5 for the overcharge has been credited. See the app for details.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 14,
+  "signs": [
+   "bait"
+  ],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Congratulations! You have been selected to win a free iPhone. Claim your reward at bit.ly/free-gb-win",
+  "sender": "@fast_help_line",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 73,
+  "signs": [
+   "bait",
+   "shortlink",
+   "senderUnknown"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "Thanks for contacting support. Your ticket number 35379 has been resolved. Rate your experience in the app.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Win a free 5GB bundle when you recharge BHD 5 this week. Terms apply. Details at operatorx.example",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "careful",
+  "score": 27,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Thanks for contacting support. Your ticket number 29906 has been resolved. Rate your experience in the app.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your OTP is 698885. It is valid for 5 minutes. Never share this code with anyone, we will never ask for it.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Thanks for contacting support. Your ticket number 02099 has been resolved. Rate your experience in the app.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your refund of BHD 5 for the overcharge has been credited. See the app for details.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 14,
+  "signs": [
+   "bait"
+  ],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your October bill of BHD 7.500 is ready. You can view and pay it in the official app. No action is needed if you use auto-pay.",
+  "sender": "+973 1700 0000",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Your OTP is 119669. It is valid for 5 minutes. Never share this code with anyone, we will never ask for it.",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "ok",
+  "score": 0,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "Win a free 5GB bundle when you recharge BHD 5 this week. Terms apply. Details at operatorx.example",
+  "sender": "OperatorX",
+  "channel": "SMS",
+  "verdict": "careful",
+  "score": 27,
+  "signs": [],
+  "observed_at": null,
+  "truth": "genuine"
+ },
+ {
+  "text": "You are eligible for a refund of BHD 99. Confirm your card number and PIN to receive it immediately.",
+  "sender": "@operatorx_suport",
+  "channel": "Call",
+  "verdict": "scam",
+  "score": 100,
+  "signs": [
+   "credential",
+   "bait",
+   "urgency",
+   "verify",
+   "senderFake"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ },
+ {
+  "text": "عزيزي العميل، سيتم تعليق خدمتك خلال ساعة. أرسل رمز التحقق الذي وصلك الآن",
+  "sender": "@operatorx_suport",
+  "channel": "SMS",
+  "verdict": "scam",
+  "score": 100,
+  "signs": [
+   "credential",
+   "urgency",
+   "generic",
+   "senderFake"
+  ],
+  "observed_at": null,
+  "truth": "scam"
+ }
+]
